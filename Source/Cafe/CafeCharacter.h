@@ -24,9 +24,7 @@ enum class EDirection : uint8
 };
 ENUM_CLASS_FLAGS(EDirection);
 
-/**
- * 
- */
+
 UCLASS()
 class CAFE_API ACafeCharacter : public APaperCharacter
 {
