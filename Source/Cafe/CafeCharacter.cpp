@@ -31,6 +31,7 @@ void ACafeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		/* Bind movement input logic */
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACafeCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ACafeCharacter::Idle);
 	}
 }
 
@@ -41,6 +42,8 @@ void ACafeCharacter::Move(const FInputActionValue& Value)
 
 	if (Controller)
 	{
+		SetMoving(true);
+		
 		/* Find yaw rotation */
 		FRotator Rotation = Controller->GetControlRotation();
 		FRotator Yaw = FRotator(0.0f, Rotation.Yaw, 0.0f);
@@ -53,29 +56,37 @@ void ACafeCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardVector, MovementVector.Y);
 		AddMovementInput(RightVector, MovementVector.X);
 
-		/* Reset movement axis every input */
-		MovementAxis = EMovementAxis::None;
+		/* Reset direction every input */
+		Direction = EDirection::None;
 
 		/* Moving up */
 		if (MovementVector.Y > 0)
 		{
-			MovementAxis |= EMovementAxis::Up;
+			Direction |= EDirection::Up;
 		}
 		/* Moving down */
 		else if (MovementVector.Y < 0)
 		{
-			MovementAxis |= EMovementAxis::Down;
+			Direction |= EDirection::Down;
 		}
 		
 		/* Moving right */
 		if (MovementVector.X > 0)
 		{
-			MovementAxis |= EMovementAxis::Right;
+			Direction |= EDirection::Right;
 		}
 		/* Moving left */
 		else if (MovementVector.X < 0)
 		{
-			MovementAxis |= EMovementAxis::Left;
+			Direction |= EDirection::Left;
 		}
+		
+		UpdateFlipbook();
 	}
+}
+
+void ACafeCharacter::Idle()
+{
+	SetMoving(false);
+	UpdateFlipbook();
 }

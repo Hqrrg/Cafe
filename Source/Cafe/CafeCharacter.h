@@ -7,9 +7,9 @@
 #include "PaperCharacter.h"
 #include "CafeCharacter.generated.h"
 
-/* Bitflag Enum: More info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
+/* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
-enum class EMovementAxis : uint8
+enum class EDirection : uint8
 {
 	None		= 0b00000000, // 0
 	Up			= 0b00000001, // 1
@@ -22,7 +22,7 @@ enum class EMovementAxis : uint8
 	DownLeft	= Down | Left, // 6
 	DownRight	= Down | Right // 10
 };
-ENUM_CLASS_FLAGS(EMovementAxis);
+ENUM_CLASS_FLAGS(EDirection);
 
 /**
  * 
@@ -54,13 +54,27 @@ protected:
 	/* Movement input logic */
 	void Move(const FInputActionValue& Value);
 
+	/* Movement has ended */
+	void Idle();
+
+	/* Update flipbook logic */
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateFlipbook();
+
 public:
+	/* Getter for character direction */
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE EMovementAxis GetMovementAxis() { return MovementAxis; }
+	FORCEINLINE EDirection GetDirection() { return Direction; }
+
+	/* Getter for character movement state */
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsMoving() { return Moving; }
 
 private:
-	EMovementAxis MovementAxis = EMovementAxis::None;
-
-
+	/* Setter for character movement state */
+	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }
 	
+private:
+	EDirection Direction = EDirection::None;
+	bool Moving = false;
 };
