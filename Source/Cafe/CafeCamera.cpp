@@ -12,6 +12,7 @@ ACafeCamera::ACafeCamera()
 
 	/* Create camera component and set as root */
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	CameraComponent->SetProjectionMode(ECameraProjectionMode::Orthographic);
 	SetRootComponent(CameraComponent);
 }
 
