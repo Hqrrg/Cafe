@@ -30,13 +30,13 @@ void AInteractablePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-/* Interact behaviour ~ _Impementation suffix because of BlueprintImplementableEvent */
+/* Interact behaviour ~ _Impementation suffix because of BlueprintNativeEvent */
 void AInteractablePawn::Interact_Implementation()
 {
 	IInteractable::Interact_Implementation();
 }
 
-/* Selection behaviour ~ _Impementation suffix because of BlueprintImplementableEvent */
+/* Selection behaviour ~ _Impementation suffix because of BlueprintNativeEvent */
 void AInteractablePawn::Selected_Implementation(bool Is)
 {
 	IInteractable::Selected_Implementation(Is);
