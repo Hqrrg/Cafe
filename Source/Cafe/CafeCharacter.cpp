@@ -41,36 +41,12 @@ void ACafeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 /* Movement input logic */
 void ACafeCharacter::Move(const FInputActionValue& Value)
 {
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	if (Controller)
 	{
-		/* Get mouse cursor screen coordinates */
-		float MouseX, MouseY; PlayerController->GetMousePosition(MouseX, MouseY);
-
-		/* Max length of the line trace */
-		const int32 MAX_TRACE_DIST = 1000;
-
-		/* Get camera info */
-		FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-		FVector CameraDirection = CameraRotation.Vector().GetSafeNormal();
-
-		/* Get trace start & end locations in the world from the mouse position */
-		FVector TraceStartLoc, TraceEndLoc;
-		PlayerController->DeprojectScreenPositionToWorld(MouseX, MouseY, TraceStartLoc, CameraDirection);
-		TraceEndLoc = TraceStartLoc + MAX_TRACE_DIST * CameraDirection;
-
 		FHitResult* OutHit = new FHitResult();
-		FCollisionQueryParams QueryParams;
-
-		/* Line Trace */
-		bool LineTrace = GetWorld()->LineTraceSingleByChannel(
-			*OutHit,
-			TraceStartLoc,
-			TraceEndLoc,
-			ECC_Visibility,
-			QueryParams
-		);
-
-		/* If it finds nothing, return */
+		bool LineTrace = LineTraceFromMousePosition(*OutHit);
+		
+		/* If line trace finds nothing, return */
 		if (!LineTrace) return;
 		
 		FVector PlayerLocation = GetActorLocation();
@@ -114,7 +90,7 @@ void ACafeCharacter::Move(const FInputActionValue& Value)
 			{
 				Direction |= EDirection::Down;
 			}
-	
+
 			/* Moving right */
 			if (RelativeVelocity.Y > 0.25)
 			{
@@ -134,4 +110,39 @@ void ACafeCharacter::Idle()
 {
 	SetMoving(false);
 	UpdateFlipbook();
+}
+
+bool ACafeCharacter::LineTraceFromMousePosition(FHitResult& OutHit)
+{
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		/* Get mouse cursor screen coordinates */
+		float MouseX, MouseY; PlayerController->GetMousePosition(MouseX, MouseY);
+
+		/* Max length of the line trace */
+		const int32 MAX_TRACE_DIST = 1000;
+
+		/* Get camera info */
+		FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+		FVector CameraDirection = CameraRotation.Vector().GetSafeNormal();
+
+		/* Get trace start & end locations in the world from the mouse position */
+		FVector TraceStartLoc, TraceEndLoc;
+		PlayerController->DeprojectScreenPositionToWorld(MouseX, MouseY, TraceStartLoc, CameraDirection);
+		TraceEndLoc = TraceStartLoc + MAX_TRACE_DIST * CameraDirection;
+		
+		FCollisionQueryParams QueryParams;
+
+		/* Line Trace */
+		bool LineTrace = GetWorld()->LineTraceSingleByChannel(
+			OutHit,
+			TraceStartLoc,
+			TraceEndLoc,
+			ECC_Visibility,
+			QueryParams
+		);
+
+		return LineTrace;
+	}
+	return false;
 }

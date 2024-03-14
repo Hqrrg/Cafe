@@ -69,12 +69,15 @@ public:
 	FORCEINLINE bool IsMoving() { return Moving; }
 
 public:
+	/* Optional navigation bounds */
 	UPROPERTY(EditInstanceOnly)
 	class ACharacterNavigationBox* NavigationBox;
 
 private:
 	/* Setter for character movement state */
 	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }
+
+	bool LineTraceFromMousePosition(FHitResult& OutHit);
 	
 private:
 	EDirection Direction = EDirection::None;

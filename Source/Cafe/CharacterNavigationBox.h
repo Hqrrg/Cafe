@@ -11,7 +11,8 @@ class CAFE_API ACharacterNavigationBox : public AActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	/* Navigation Box Component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* NavigationBox;
 
 public:
@@ -23,6 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	/* Return whether a provided location falls within the navigation box */
 	bool IsLocationWithinArea(FVector& Location);
 
 private:
