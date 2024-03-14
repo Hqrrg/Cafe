@@ -5,6 +5,12 @@
 
 #include "CafeCamera.h"
 
+void ACafePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	SetShowMouseCursor(true);
+}
+
 /* Sets the view target to the cafe camera actor */
 void ACafePlayerController::OnPossess(APawn* InPawn)
 {

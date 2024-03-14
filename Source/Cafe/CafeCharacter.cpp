@@ -2,8 +2,11 @@
 
 
 #include "CafeCharacter.h"
+
+#include "CharacterNavigationBox.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ACafeCharacter::ACafeCharacter()
 {
@@ -38,49 +41,91 @@ void ACafeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 /* Movement input logic */
 void ACafeCharacter::Move(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller)
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		SetMoving(true);
+		/* Get mouse cursor screen coordinates */
+		float MouseX, MouseY; PlayerController->GetMousePosition(MouseX, MouseY);
+
+		/* Max length of the line trace */
+		const int32 MAX_TRACE_DIST = 1000;
+
+		/* Get camera info */
+		FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+		FVector CameraDirection = CameraRotation.Vector().GetSafeNormal();
+
+		/* Get trace start & end locations in the world from the mouse position */
+		FVector TraceStartLoc, TraceEndLoc;
+		PlayerController->DeprojectScreenPositionToWorld(MouseX, MouseY, TraceStartLoc, CameraDirection);
+		TraceEndLoc = TraceStartLoc + MAX_TRACE_DIST * CameraDirection;
+
+		FHitResult* OutHit = new FHitResult();
+		FCollisionQueryParams QueryParams;
+
+		/* Line Trace */
+		bool LineTrace = GetWorld()->LineTraceSingleByChannel(
+			*OutHit,
+			TraceStartLoc,
+			TraceEndLoc,
+			ECC_Visibility,
+			QueryParams
+		);
+
+		/* If it finds nothing, return */
+		if (!LineTrace) return;
 		
-		/* Find yaw rotation */
-		FRotator Rotation = Controller->GetControlRotation();
-		FRotator Yaw = FRotator(0.0f, Rotation.Yaw, 0.0f);
+		FVector PlayerLocation = GetActorLocation();
+		FVector TargetLocation = OutHit->Location;
+		FVector WorldDirection = UKismetMathLibrary::GetDirectionUnitVector(PlayerLocation, TargetLocation);
 
-		/* Find axis vectors */
-		const FVector ForwardVector = FRotationMatrix(Yaw).GetUnitAxis(EAxis::X);
-		const FVector RightVector = FRotationMatrix(Yaw).GetUnitAxis(EAxis::Y);
+		/* Prospective next location should the player keep moving towards target */
+		FVector NextLocation = PlayerLocation + WorldDirection * 10;
 
-		/* Add movement input for both axis vectors */
-		AddMovementInput(ForwardVector, MovementVector.Y);
-		AddMovementInput(RightVector, MovementVector.X);
-
-		/* Reset direction every input */
-		Direction = EDirection::None;
-
-		/* Moving up */
-		if (MovementVector.Y > 0)
+		if (NavigationBox)
 		{
-			Direction |= EDirection::Up;
+			/* If the next location would be out of bounds, do not continue */
+			if (!NavigationBox->IsLocationWithinArea(NextLocation))
+			{
+				Idle();
+				return;
+			}
 		}
-		/* Moving down */
-		else if (MovementVector.Y < 0)
-		{
-			Direction |= EDirection::Down;
-		}
+		/* Move towards target location */
+		AddMovementInput(WorldDirection, 1.0f);
 		
-		/* Moving right */
-		if (MovementVector.X > 0)
+		SetMoving(GetVelocity().Length() > 0);
+
+		/* Get player velocity in relation to the player */
+		FRotator Rotation = GetControlRotation();
+		FVector Velocity = GetVelocity();
+		FVector RelativeVelocity = Rotation.UnrotateVector(Velocity); RelativeVelocity.Normalize();
+
+		if (RelativeVelocity.IsNormalized())
 		{
-			Direction |= EDirection::Right;
-		}
-		/* Moving left */
-		else if (MovementVector.X < 0)
-		{
-			Direction |= EDirection::Left;
-		}
+			/* Reset direction every input */
+			Direction = EDirection::None;
 		
+			/* Moving up */
+			if (RelativeVelocity.X > 0.25)
+			{
+				Direction |= EDirection::Up;
+			}
+			/* Moving down */
+			else if (RelativeVelocity.X < -0.25)
+			{
+				Direction |= EDirection::Down;
+			}
+	
+			/* Moving right */
+			if (RelativeVelocity.Y > 0.25)
+			{
+				Direction |= EDirection::Right;
+			}
+			/* Moving left */
+			else if (RelativeVelocity.Y < -0.25)
+			{
+				Direction |= EDirection::Left;
+			}
+		}
 		UpdateFlipbook();
 	}
 }

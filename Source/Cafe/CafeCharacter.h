@@ -68,6 +68,10 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsMoving() { return Moving; }
 
+public:
+	UPROPERTY(EditInstanceOnly)
+	class ACharacterNavigationBox* NavigationBox;
+
 private:
 	/* Setter for character movement state */
 	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }

@@ -16,6 +16,9 @@ class CAFE_API ACafePlayerController : public APlayerController
 	GENERATED_BODY()
 
 protected:
+	/* Called when actor is spawned */
+	virtual void BeginPlay() override;
+	
 	/* Called when possessing a pawn */
 	virtual void OnPossess(APawn* InPawn) override;
 
