@@ -38,6 +38,10 @@ class CAFE_API ACafeCharacter : public APaperCharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
 
+	/* Interact InputAction */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* InteractAction;
+
 public:
 	ACafeCharacter();
 
@@ -54,6 +58,9 @@ protected:
 
 	/* Movement has ended */
 	void Idle();
+
+	/* Interact input logic */
+	void Interact(const FInputActionValue& Value);
 
 	/* Update flipbook logic */
 	UFUNCTION(BlueprintImplementableEvent)
@@ -77,6 +84,7 @@ private:
 	/* Setter for character movement state */
 	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }
 
+	/* Return true if line trace hits an actor and set by reference */
 	bool LineTraceFromMousePosition(FHitResult& OutHit);
 	
 private:

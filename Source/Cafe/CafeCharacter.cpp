@@ -6,6 +6,7 @@
 #include "CharacterNavigationBox.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Interactable.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ACafeCharacter::ACafeCharacter()
@@ -35,6 +36,9 @@ void ACafeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		/* Bind movement input logic */
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACafeCharacter::Move);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ACafeCharacter::Idle);
+
+		/* Bind interact input logic */
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ACafeCharacter::Interact);
 	}
 }
 
@@ -112,6 +116,30 @@ void ACafeCharacter::Idle()
 	UpdateFlipbook();
 }
 
+void ACafeCharacter::Interact(const FInputActionValue& Value)
+{
+	if (Controller)
+	{
+		FHitResult* OutHit = new FHitResult();
+		bool LineTrace = LineTraceFromMousePosition(*OutHit);
+
+		if (!LineTrace) return;
+
+		if (AActor* HitActor = OutHit->GetActor())
+		{
+			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
+			{
+				/* Execute interact function on the interactable actor */
+				IInteractable::Execute_Interact(HitActor);
+
+				/* If we were not worrying about BlueprintNativeEvent
+				 * the function call would look like this: Interactable->Interact(); */
+			}
+		}
+	}
+}
+
+/* Return true if line trace hits an actor and set by reference */
 bool ACafeCharacter::LineTraceFromMousePosition(FHitResult& OutHit)
 {
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
