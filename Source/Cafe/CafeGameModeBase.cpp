@@ -4,7 +4,7 @@
 #include "CafeGameModeBase.h"
 
 #include "CafeCharacter.h"
-#include "CafePlayerController.h"
+#include "BaristaPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 /* Sets default values */
@@ -17,7 +17,7 @@ ACafeGameModeBase::ACafeGameModeBase()
 		DefaultPawnClass = DefaultPawn.Class;
 	}
 	/* Set the default player controller class */
-	PlayerControllerClass = ACafePlayerController::StaticClass();
+	PlayerControllerClass = ABaristaPlayerController::StaticClass();
 }
 
 /* Updates the player's camera when they spawn */
@@ -25,7 +25,7 @@ APlayerController* ACafeGameModeBase::SpawnPlayerController(ENetRole InRemoteRol
 {
 	APlayerController* PlayerController = Super::SpawnPlayerController(InRemoteRole, Options);
 
-	if (ACafePlayerController* CafePlayerController = Cast<ACafePlayerController>(PlayerController))
+	if (ABaristaPlayerController* CafePlayerController = Cast<ABaristaPlayerController>(PlayerController))
 	{
 		/* Assign camera manager to the first instance found */
 		if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACafeCameraManager::StaticClass()))
@@ -39,4 +39,10 @@ APlayerController* ACafeGameModeBase::SpawnPlayerController(ENetRole InRemoteRol
 	}
 	
 	return PlayerController;
+}
+
+/* Return nullptr to stop gamemode from spawning an extra player pawn */
+UClass* ACafeGameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController)
+{
+	return nullptr;
 }

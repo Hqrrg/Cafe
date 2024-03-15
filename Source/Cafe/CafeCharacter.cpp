@@ -3,14 +3,23 @@
 
 #include "CafeCharacter.h"
 
+<<<<<<< Updated upstream
 #include "CharacterNavigationBox.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+=======
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+>>>>>>> Stashed changes
 
 ACafeCharacter::ACafeCharacter()
 {
+	GetCapsuleComponent()->SetCapsuleSize(24.0f, 100.0f, true);
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 100.0f;
 }
+<<<<<<< Updated upstream
 
 /* Called when actor is spawned */
 void ACafeCharacter::BeginPlay()
@@ -135,3 +144,5 @@ void ACafeCharacter::Idle()
 	SetMoving(false);
 	UpdateFlipbook();
 }
+=======
+>>>>>>> Stashed changes

@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "InputActionValue.h"
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "CafeCharacter.generated.h"
@@ -30,6 +29,7 @@ class CAFE_API ACafeCharacter : public APaperCharacter
 {
 	GENERATED_BODY()
 
+<<<<<<< Updated upstream
 	/* InputMappingContext */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* InputMappingContext;
@@ -38,13 +38,13 @@ class CAFE_API ACafeCharacter : public APaperCharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
 
+=======
+>>>>>>> Stashed changes
 public:
+	/* Set defaults for this actor*/
 	ACafeCharacter();
-
-protected:
-	/* Called when actor is spawned */
-	virtual void BeginPlay() override;
 	
+<<<<<<< Updated upstream
 	/* Setup input component */
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -59,6 +59,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateFlipbook();
 
+=======
+>>>>>>> Stashed changes
 public:
 	/* Getter for character direction */
 	UFUNCTION(BlueprintPure)
@@ -68,15 +70,19 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsMoving() { return Moving; }
 
+<<<<<<< Updated upstream
 public:
 	UPROPERTY(EditInstanceOnly)
 	class ACharacterNavigationBox* NavigationBox;
 
 private:
+=======
+protected:
+>>>>>>> Stashed changes
 	/* Setter for character movement state */
 	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }
 	
-private:
+protected:
 	EDirection Direction = EDirection::None;
 	bool Moving = false;
 };
