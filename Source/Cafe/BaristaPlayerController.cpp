@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CafePlayerController.h"
+#include "BaristaPlayerController.h"
 
 #include "CafeCamera.h"
 
-void ACafePlayerController::BeginPlay()
+void ABaristaPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
@@ -13,7 +13,7 @@ void ACafePlayerController::BeginPlay()
 }
 
 /* Sets the view target to the cafe camera actor */
-void ACafePlayerController::OnPossess(APawn* InPawn)
+void ABaristaPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
@@ -21,7 +21,7 @@ void ACafePlayerController::OnPossess(APawn* InPawn)
 }
 
 /* Sets the player's camera */
-void ACafePlayerController::SetCafeCamera(ACafeCamera* Camera)
+void ABaristaPlayerController::SetCafeCamera(ACafeCamera* Camera)
 {
 	CafeCamera = Camera;
 	CafeCamera->SetOwningPlayer(this);

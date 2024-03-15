@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
-#include "PaperCharacter.h"
 #include "CustomerCharacter.generated.h"
 
 /* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
@@ -27,16 +26,16 @@ enum class ECustomerCharacteristic : uint16
 ENUM_CLASS_FLAGS(ECustomerCharacteristic);
 
 UCLASS()
-class CAFE_API ACustomerCharacter : public APaperCharacter
+class CAFE_API ACustomerCharacter : public ACafeCharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+	/* Sets default properties for this actor */
 	ACustomerCharacter();
 
 protected:
-	// Called when the game starts or when spawned
+	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
 public:
@@ -44,20 +43,10 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ECustomerCharacteristic GetCharacteristic() { return Characteristic; }
 	
-	/* Getter for character direction */
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE EDirection GetDirection() { return Direction; }
-
-	/* Getter for character movement state */
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE bool IsMoving() { return Moving; }
-	
 private:
 	/* Array of characteristics that can be edited in defaults for each instance of this class */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Defaults, DisplayName = "Characteristics", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, EditFixedSize, BlueprintReadWrite, Category = Defaults, DisplayName = "Characteristics", meta = (AllowPrivateAccess = "true"))
 	TArray<ECustomerCharacteristic> DefaultCharacteristicsArray;
 
 	ECustomerCharacteristic Characteristic;
-	EDirection Direction = EDirection::None;
-	bool Moving = false;
 };

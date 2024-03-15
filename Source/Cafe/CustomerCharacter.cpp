@@ -11,8 +11,9 @@ ACustomerCharacter::ACustomerCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	/* Pre-initialise default characteristics array with Normal & assign to characteristic property */
-	DefaultCharacteristicsArray.Init(ECustomerCharacteristic::Normal, 1);
-	Characteristic = DefaultCharacteristicsArray[0];
+	DefaultCharacteristicsArray.Init(ECustomerCharacteristic::Normal, 2);
+	Characteristic |= DefaultCharacteristicsArray[0];
+	Characteristic |= DefaultCharacteristicsArray[1];
 }
 
 // Called when the game starts or when spawned

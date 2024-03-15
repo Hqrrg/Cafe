@@ -23,6 +23,9 @@ protected:
 	/* Called when spawning a player controller */
 	virtual APlayerController* SpawnPlayerController(ENetRole InRemoteRole, const FString& Options) override;
 
+	/* Called when spawning default pawn into the world */
+	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
+
 public:
 	UFUNCTION(BlueprintGetter) /* Get the camera manager */
 	FORCEINLINE ACafeCameraManager* GetCameraManager() { return CameraManager; }

@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "CafePlayerController.generated.h"
+#include "BaristaPlayerController.generated.h"
 
 class ACafeCamera;
 /**
  * 
  */
 UCLASS()
-class CAFE_API ACafePlayerController : public APlayerController
+class CAFE_API ABaristaPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 

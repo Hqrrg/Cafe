@@ -3,15 +3,23 @@
 
 #include "CafeCharacter.h"
 
+<<<<<<< Updated upstream
 #include "CharacterNavigationBox.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Interactable.h"
 #include "Kismet/KismetMathLibrary.h"
+=======
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+>>>>>>> Stashed changes
 
 ACafeCharacter::ACafeCharacter()
 {
+	GetCapsuleComponent()->SetCapsuleSize(24.0f, 100.0f, true);
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 100.0f;
 }
+<<<<<<< Updated upstream
 
 /* Called when actor is spawned */
 void ACafeCharacter::BeginPlay()
@@ -36,21 +44,42 @@ void ACafeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		/* Bind movement input logic */
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACafeCharacter::Move);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ACafeCharacter::Idle);
-
-		/* Bind interact input logic */
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ACafeCharacter::Interact);
 	}
 }
 
 /* Movement input logic */
 void ACafeCharacter::Move(const FInputActionValue& Value)
 {
-	if (Controller)
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
+		/* Get mouse cursor screen coordinates */
+		float MouseX, MouseY; PlayerController->GetMousePosition(MouseX, MouseY);
+
+		/* Max length of the line trace */
+		const int32 MAX_TRACE_DIST = 1000;
+
+		/* Get camera info */
+		FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+		FVector CameraDirection = CameraRotation.Vector().GetSafeNormal();
+
+		/* Get trace start & end locations in the world from the mouse position */
+		FVector TraceStartLoc, TraceEndLoc;
+		PlayerController->DeprojectScreenPositionToWorld(MouseX, MouseY, TraceStartLoc, CameraDirection);
+		TraceEndLoc = TraceStartLoc + MAX_TRACE_DIST * CameraDirection;
+
 		FHitResult* OutHit = new FHitResult();
-		bool LineTrace = LineTraceFromMousePosition(*OutHit);
-		
-		/* If line trace finds nothing, return */
+		FCollisionQueryParams QueryParams;
+
+		/* Line Trace */
+		bool LineTrace = GetWorld()->LineTraceSingleByChannel(
+			*OutHit,
+			TraceStartLoc,
+			TraceEndLoc,
+			ECC_Visibility,
+			QueryParams
+		);
+
+		/* If it finds nothing, return */
 		if (!LineTrace) return;
 		
 		FVector PlayerLocation = GetActorLocation();
@@ -94,7 +123,7 @@ void ACafeCharacter::Move(const FInputActionValue& Value)
 			{
 				Direction |= EDirection::Down;
 			}
-
+	
 			/* Moving right */
 			if (RelativeVelocity.Y > 0.25)
 			{
@@ -115,62 +144,5 @@ void ACafeCharacter::Idle()
 	SetMoving(false);
 	UpdateFlipbook();
 }
-
-void ACafeCharacter::Interact(const FInputActionValue& Value)
-{
-	if (Controller)
-	{
-		FHitResult* OutHit = new FHitResult();
-		bool LineTrace = LineTraceFromMousePosition(*OutHit);
-
-		if (!LineTrace) return;
-
-		if (AActor* HitActor = OutHit->GetActor())
-		{
-			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
-			{
-				/* Execute interact function on the interactable actor */
-				IInteractable::Execute_Interact(HitActor);
-
-				/* If we were not worrying about BlueprintNativeEvent
-				 * the function call would look like this: Interactable->Interact(); */
-			}
-		}
-	}
-}
-
-/* Return true if line trace hits an actor and set by reference */
-bool ACafeCharacter::LineTraceFromMousePosition(FHitResult& OutHit)
-{
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		/* Get mouse cursor screen coordinates */
-		float MouseX, MouseY; PlayerController->GetMousePosition(MouseX, MouseY);
-
-		/* Max length of the line trace */
-		const int32 MAX_TRACE_DIST = 1000;
-
-		/* Get camera info */
-		FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-		FVector CameraDirection = CameraRotation.Vector().GetSafeNormal();
-
-		/* Get trace start & end locations in the world from the mouse position */
-		FVector TraceStartLoc, TraceEndLoc;
-		PlayerController->DeprojectScreenPositionToWorld(MouseX, MouseY, TraceStartLoc, CameraDirection);
-		TraceEndLoc = TraceStartLoc + MAX_TRACE_DIST * CameraDirection;
-		
-		FCollisionQueryParams QueryParams;
-
-		/* Line Trace */
-		bool LineTrace = GetWorld()->LineTraceSingleByChannel(
-			OutHit,
-			TraceStartLoc,
-			TraceEndLoc,
-			ECC_Visibility,
-			QueryParams
-		);
-
-		return LineTrace;
-	}
-	return false;
-}
+=======
+>>>>>>> Stashed changes
