@@ -41,10 +41,6 @@ protected:
 	/* Interact input logic */
 	void Interact(const FInputActionValue& Value);
 
-	/* Update flipbook logic */
-	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateFlipbook();
-
 public:
 	/* Optional navigation bounds */
 	UPROPERTY(EditInstanceOnly)

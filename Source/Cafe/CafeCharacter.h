@@ -28,39 +28,15 @@ UCLASS()
 class CAFE_API ACafeCharacter : public APaperCharacter
 {
 	GENERATED_BODY()
-
-<<<<<<< Updated upstream
-	/* InputMappingContext */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* InputMappingContext;
-
-	/* Move InputAction */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
-
-=======
->>>>>>> Stashed changes
 public:
 	/* Set defaults for this actor*/
 	ACafeCharacter();
-	
-<<<<<<< Updated upstream
-	/* Setup input component */
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 protected:
-	/* Movement input logic */
-	void Move(const FInputActionValue& Value);
-
-	/* Movement has ended */
-	void Idle();
-
 	/* Update flipbook logic */
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateFlipbook();
 
-=======
->>>>>>> Stashed changes
 public:
 	/* Getter for character direction */
 	UFUNCTION(BlueprintPure)
@@ -70,15 +46,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsMoving() { return Moving; }
 
-<<<<<<< Updated upstream
-public:
-	UPROPERTY(EditInstanceOnly)
-	class ACharacterNavigationBox* NavigationBox;
-
-private:
-=======
 protected:
->>>>>>> Stashed changes
 	/* Setter for character movement state */
 	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }
 	
