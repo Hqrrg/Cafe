@@ -19,23 +19,3 @@ void ACafeQueueManager::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
-FQueuePoint ACafeQueueManager::GetQueuePoint(int32 Index)
-{
-	return QueuePointArray[Index];
-}
-
-bool ACafeQueueManager::IsQueuePointOccupied(FQueuePoint QueuePoint)
-{
-	return QueuePoint.Occupied;
-}
-
-EDirection ACafeQueueManager::GetQueuePointDirection(FQueuePoint QueuePoint)
-{
-	return QueuePoint.Direction;
-}
-
-FVector ACafeQueueManager::GetQueuePointWorldLocation(FQueuePoint QueuePoint)
-{
-	return GetActorLocation() + QueuePoint.Location;
-}

@@ -10,6 +10,22 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
+ABaristaCharacter::ABaristaCharacter()
+{
+	static ConstructorHelpers::FObjectFinder<UDataTable> BaristaCharacterInfoDataTableAsset(TEXT("/Game/Cafe/DataTables/DT_BaristaCharacterInfo.DT_BaristaCharacterInfo"));
+	if (BaristaCharacterInfoDataTableAsset.Succeeded())
+	{
+		BaristaCharacterInfoDataTable = BaristaCharacterInfoDataTableAsset.Object;
+	}
+
+	if (BaristaCharacterInfoDataTable)
+	{
+		static const FString ContextString(TEXT("Barista Character Info Context"));
+		BaristaIdleInfo = BaristaCharacterInfoDataTable->FindRow<FCharacterInfo>(FName("Idle"), ContextString, true);
+		BaristaWalkingInfo = BaristaCharacterInfoDataTable->FindRow<FCharacterInfo>(FName("Walking"), ContextString, true);
+	}
+}
+
 /* Called when actor is spawned */
 void ABaristaCharacter::BeginPlay()
 {
@@ -37,6 +53,87 @@ void ABaristaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		/* Bind interact input logic */
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ABaristaCharacter::Interact);
 	}
+}
+
+void ABaristaCharacter::UpdateFlipbook()
+{
+	UPaperFlipbook* NewFlipbook = nullptr;;
+
+	if (IsMoving())
+	{
+		if (!BaristaWalkingInfo) return;
+		
+		switch (Direction)
+		{
+			case EDirection::None:
+				NewFlipbook = BaristaWalkingInfo->Down;
+				break;
+			case EDirection::Up:
+				NewFlipbook = BaristaWalkingInfo->Up;
+				break;
+			case EDirection::Down:
+				NewFlipbook = BaristaWalkingInfo->Down;
+				break;
+			case EDirection::Left:
+				NewFlipbook = BaristaWalkingInfo->Left;
+				break;
+			case EDirection::Right:
+				NewFlipbook = BaristaWalkingInfo->Right;
+				break;
+			case EDirection::UpLeft:
+				NewFlipbook = BaristaWalkingInfo->UpLeft;
+				break;
+			case EDirection::UpRight:
+				NewFlipbook = BaristaWalkingInfo->UpRight;
+				break;
+			case EDirection::DownLeft:
+				NewFlipbook = BaristaWalkingInfo->DownLeft;
+				break;
+			case EDirection::DownRight:
+				NewFlipbook = BaristaWalkingInfo->DownRight;
+				break;
+			default:
+				NewFlipbook = nullptr;
+		}
+	}
+	else
+	{
+		if (!BaristaIdleInfo) return;
+		
+		switch (Direction)
+		{
+			case EDirection::None:
+				NewFlipbook = BaristaIdleInfo->Down;
+				break;
+			case EDirection::Up:
+				NewFlipbook = BaristaIdleInfo->Up;
+				break;
+			case EDirection::Down:
+				NewFlipbook = BaristaIdleInfo->Down;
+				break;
+			case EDirection::Left:
+				NewFlipbook = BaristaIdleInfo->Left;
+				break;
+			case EDirection::Right:
+				NewFlipbook = BaristaIdleInfo->Right;
+				break;
+			case EDirection::UpLeft:
+				NewFlipbook = BaristaIdleInfo->UpLeft;
+				break;
+			case EDirection::UpRight:
+				NewFlipbook = BaristaIdleInfo->UpRight;
+				break;
+			case EDirection::DownLeft:
+				NewFlipbook = BaristaIdleInfo->DownLeft;
+				break;
+			case EDirection::DownRight:
+				NewFlipbook = BaristaIdleInfo->DownRight;
+				break;
+			default:
+				NewFlipbook = nullptr;
+		}
+	}
+	FlipbookComponent->SetFlipbook(NewFlipbook);
 }
 
 /* Movement input logic */

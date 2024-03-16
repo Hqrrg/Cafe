@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
+#include "Engine/DataTable.h"
 #include "CustomerCharacter.generated.h"
 
 /* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
@@ -25,6 +26,18 @@ enum class ECustomerModifier : uint16
 };
 ENUM_CLASS_FLAGS(ECustomerModifier);
 
+USTRUCT(BlueprintType)
+struct FCustomerModifierInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ECustomerModifier FirstModifier = ECustomerModifier::Normal;
+
+	UPROPERTY(EditAnywhere)
+	ECustomerModifier SecondModifier = ECustomerModifier::Normal;
+};
+
 UCLASS()
 class CAFE_API ACustomerCharacter : public ACafeCharacter
 {
@@ -38,15 +51,26 @@ protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
+	virtual void UpdateFlipbook() override;
+
 public:
+	void Setup(FString Name);
+	
 	/* Getter for customer characteristic */
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ECustomerModifier GetModifier() { return Modifier; }
 	
 private:
-	/* Array of characteristics that can be edited in defaults for each instance of this class */
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, BlueprintReadWrite, Category = Defaults, DisplayName = "Modifiers", meta = (AllowPrivateAccess = "true"))
-	TArray<ECustomerModifier> DefaultModifiersArray;
+	ECustomerModifier Modifier = ECustomerModifier::Normal;
 
-	ECustomerModifier Modifier;
+	UPROPERTY()
+	UDataTable* CustomerCharacterInfoDataTable = nullptr;
+
+	FCharacterInfo* CustomerIdleInfo = nullptr;
+	FCharacterInfo* CustomerWalkingInfo = nullptr;
+
+	UPROPERTY()
+	UDataTable* CustomerModifierInfoDataTable = nullptr;
+
+	FCustomerModifierInfo* CustomerModifierInfo = nullptr;
 };

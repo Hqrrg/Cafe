@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
 #include "InputActionValue.h"
+#include "Engine/DataTable.h"
 #include "BaristaCharacter.generated.h"
 
 UCLASS()
@@ -24,13 +25,18 @@ class CAFE_API ABaristaCharacter : public ACafeCharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* InteractAction;
 
+public:
+	/* Sets default values for this actor's properties */
+	ABaristaCharacter();
+	
 protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
 	/* Setup input component */
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	
+
+	virtual void UpdateFlipbook() override;
 protected:
 	/* Movement input logic */
 	void Move(const FInputActionValue& Value);
@@ -49,4 +55,10 @@ public:
 private:
 	/* Return true if line trace hits an actor and set by reference */
 	bool LineTraceFromMousePosition(FHitResult& OutHit);
+
+	UPROPERTY()
+	UDataTable* BaristaCharacterInfoDataTable = nullptr;
+	
+	FCharacterInfo* BaristaIdleInfo;
+	FCharacterInfo* BaristaWalkingInfo;
 };

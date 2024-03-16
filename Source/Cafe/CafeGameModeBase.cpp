@@ -5,6 +5,8 @@
 
 #include "CafeCharacter.h"
 #include "BaristaPlayerController.h"
+#include "CustomerCharacter.h"
+#include "CustomerPlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 /* Sets default values */
@@ -28,6 +30,23 @@ void ACafeGameModeBase::BeginPlay()
 	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACafeQueueManager::StaticClass()))
 	{
 		QueueManager = Cast<ACafeQueueManager>(FoundActor);	
+	}
+
+	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACustomerPlayerStart::StaticClass()))
+	{
+		FTransform SpawnTransform = FoundActor->GetTransform();
+		FActorSpawnParameters SpawnParams;
+		ACustomerCharacter* SpawnedCustomer = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
+		SpawnedCustomer->Setup(FString("Dave"));
+		SpawnedCustomer->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
+
+		ACustomerCharacter* SpawnedCustomer1 = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
+		SpawnedCustomer1->Setup(FString("Dave"));
+		SpawnedCustomer1->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
+
+		ACustomerCharacter* SpawnedCustomer2 = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
+		SpawnedCustomer2->Setup(FString("Dave"));
+		SpawnedCustomer2->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
 	}
 }
 
