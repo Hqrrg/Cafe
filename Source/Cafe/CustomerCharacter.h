@@ -8,7 +8,7 @@
 
 /* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
 UENUM(NotBlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
-enum class ECustomerCharacteristic : uint16
+enum class ECustomerModifier : uint16
 {
 	Normal				= 0b00000000, // 0
 	Rushing				= 0b00000001, // 1
@@ -23,7 +23,7 @@ enum class ECustomerCharacteristic : uint16
 	GrumpySnob 			= Grumpy | Snob			UMETA(Hidden), // 10
 	GenerousSnob 		= Generous | Snob		UMETA(Hidden) // 12
 };
-ENUM_CLASS_FLAGS(ECustomerCharacteristic);
+ENUM_CLASS_FLAGS(ECustomerModifier);
 
 UCLASS()
 class CAFE_API ACustomerCharacter : public ACafeCharacter
@@ -41,12 +41,12 @@ protected:
 public:
 	/* Getter for customer characteristic */
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE ECustomerCharacteristic GetCharacteristic() { return Characteristic; }
+	FORCEINLINE ECustomerModifier GetModifier() { return Modifier; }
 	
 private:
 	/* Array of characteristics that can be edited in defaults for each instance of this class */
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, BlueprintReadWrite, Category = Defaults, DisplayName = "Characteristics", meta = (AllowPrivateAccess = "true"))
-	TArray<ECustomerCharacteristic> DefaultCharacteristicsArray;
+	UPROPERTY(EditDefaultsOnly, EditFixedSize, BlueprintReadWrite, Category = Defaults, DisplayName = "Modifiers", meta = (AllowPrivateAccess = "true"))
+	TArray<ECustomerModifier> DefaultModifiersArray;
 
-	ECustomerCharacteristic Characteristic;
+	ECustomerModifier Modifier;
 };

@@ -11,9 +11,9 @@ ACustomerCharacter::ACustomerCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	/* Pre-initialise default characteristics array with Normal & assign to characteristic property */
-	DefaultCharacteristicsArray.Init(ECustomerCharacteristic::Normal, 2);
-	Characteristic |= DefaultCharacteristicsArray[0];
-	Characteristic |= DefaultCharacteristicsArray[1];
+	DefaultModifiersArray.Init(ECustomerModifier::Normal, 2);
+	Modifier |= DefaultModifiersArray[0];
+	Modifier |= DefaultModifiersArray[1];
 }
 
 // Called when the game starts or when spawned
@@ -22,9 +22,11 @@ void ACustomerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	/* Loop through default characteristics array and apply to property */
-	for (ECustomerCharacteristic DefaultCharacteristic : DefaultCharacteristicsArray)
+	for (ECustomerModifier DefaultModifier : DefaultModifiersArray)
 	{
-		Characteristic |= DefaultCharacteristic;
+		Modifier |= DefaultModifier;
 	}
+
+	//TO:DO AIController + Blueprinting Behaviour Trees/Tasks/Blackboard
 }
 

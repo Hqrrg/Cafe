@@ -20,6 +20,17 @@ ACafeGameModeBase::ACafeGameModeBase()
 	PlayerControllerClass = ABaristaPlayerController::StaticClass();
 }
 
+void ACafeGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	/* Assign queue manager to the first instance found */
+	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACafeQueueManager::StaticClass()))
+	{
+		QueueManager = Cast<ACafeQueueManager>(FoundActor);	
+	}
+}
+
 /* Updates the player's camera when they spawn */
 APlayerController* ACafeGameModeBase::SpawnPlayerController(ENetRole InRemoteRole, const FString& Options)
 {
