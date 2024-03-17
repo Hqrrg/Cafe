@@ -98,6 +98,9 @@ void ACafeGameModeBase::SpawnCustomer(FTransform SpawnTransform, EDirection Spaw
 		}
 	}
 
+	/* Ensure array size is bigger than 0 */
+	if (CustomerRarityAdjustedArray.IsEmpty()) return;
+	
 	/* Get a random number between 0 (first index) and the last index of the temporary array */
 	int32 Index = FMath::RandRange(0, CustomerRarityAdjustedArray.Num()-1);
 	/* Get the customer's name from the array using the index */
