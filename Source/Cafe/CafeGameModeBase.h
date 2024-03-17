@@ -8,9 +8,16 @@
 #include "GameFramework/GameModeBase.h"
 #include "CafeGameModeBase.generated.h"
 
-/**
- * 
- */
+
+/* Customer Rarity Enum */
+UENUM(BlueprintType)
+enum ECustomerRarity : uint8
+{
+	Rare = 0,
+	Uncommon = 2,
+	Common = 4
+};
+
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
 {
@@ -36,11 +43,26 @@ public:
 
 	UFUNCTION(BlueprintPure) /* Get the queue manager */
 	FORCEINLINE ACafeQueueManager* GetQueueManager() { return QueueManager; }
+
+private:
+	UFUNCTION() /* Spawn a customer character */
+	void SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection);
+
+public:
+	/* Default map of customer names with an associated customer rarity */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Customers")
+	TMap<FString, TEnumAsByte<ECustomerRarity>> DefaultCustomerMap;
 	
 private:
-	UPROPERTY()
+	UPROPERTY() /* Camera Manager */
 	ACafeCameraManager* CameraManager = nullptr;
 
-	UPROPERTY()
+	UPROPERTY() /* Queue Manager */
 	ACafeQueueManager* QueueManager = nullptr;
+
+	UPROPERTY() /* Customer Instance Array */
+	TArray<class ACustomerCharacter*> CustomerArray;
+
+	/* TimerHandle for spawning customers */
+	FTimerHandle SpawnCustomerTimerHandle;
 };

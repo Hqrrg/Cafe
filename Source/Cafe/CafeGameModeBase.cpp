@@ -32,21 +32,19 @@ void ACafeGameModeBase::BeginPlay()
 		QueueManager = Cast<ACafeQueueManager>(FoundActor);	
 	}
 
+	/* Find the first instance of customer player start */
 	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACustomerPlayerStart::StaticClass()))
 	{
-		FTransform SpawnTransform = FoundActor->GetTransform();
-		FActorSpawnParameters SpawnParams;
-		ACustomerCharacter* SpawnedCustomer = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
-		SpawnedCustomer->Setup(FString("Dave"));
-		SpawnedCustomer->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
+		ACustomerPlayerStart* CustomerPlayerStart = Cast<ACustomerPlayerStart>(FoundActor);
+		
+		FTransform SpawnTransform = CustomerPlayerStart->GetTransform();
+		EDirection SpawnDirection = CustomerPlayerStart->GetSpawnDirection();
 
-		ACustomerCharacter* SpawnedCustomer1 = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
-		SpawnedCustomer1->Setup(FString("Dave"));
-		SpawnedCustomer1->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
+		/* Initialise a timer that calls "SpawnCustomer" with the spawn transform and spawn direction properties of the customer player start*/
+		FTimerDelegate SpawnCustomerTimerDelegate;
+		SpawnCustomerTimerDelegate.BindUFunction(this, FName("SpawnCustomer"), SpawnTransform, SpawnDirection);
 
-		ACustomerCharacter* SpawnedCustomer2 = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
-		SpawnedCustomer2->Setup(FString("Dave"));
-		SpawnedCustomer2->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
+		GetWorldTimerManager().SetTimer(SpawnCustomerTimerHandle, SpawnCustomerTimerDelegate, 5.0f, true);
 	}
 }
 
@@ -75,4 +73,45 @@ APlayerController* ACafeGameModeBase::SpawnPlayerController(ENetRole InRemoteRol
 UClass* ACafeGameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController)
 {
 	return nullptr;
+}
+
+/* Spawn a customer character */
+void ACafeGameModeBase::SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection)
+{
+	/* If there is no room in the queue, return */
+	if (CustomerArray.Num() >= GetQueueManager()->GetQueuePoints().Num()) return;
+	
+	ACustomerCharacter* Customer = nullptr;
+
+	TArray<FString> CustomerRarityAdjustedArray;
+
+	/* Loop through entries in default customer map */
+	for (const TPair<FString, ECustomerRarity> Element : DefaultCustomerMap)
+	{
+		const ECustomerRarity CustomerRarity = Element.Value;
+		const FString CustomerName = Element.Key;
+
+		/* Add the customer's name X amount of times to the temporary array. X = ECustomerRarity value */
+		for (int i = 0; i < CustomerRarity+1; i++)
+		{
+			CustomerRarityAdjustedArray.Push(CustomerName);
+		}
+	}
+
+	/* Get a random number between 0 (first index) and the last index of the temporary array */
+	int32 Index = FMath::RandRange(0, CustomerRarityAdjustedArray.Num()-1);
+	/* Get the customer's name from the array using the index */
+	FString CustomerName = CustomerRarityAdjustedArray[Index];
+
+	/* Spawn ACustomerCharacter */
+	FActorSpawnParameters SpawnParams;
+	Customer = GetWorld()->SpawnActor<ACustomerCharacter>(ACustomerCharacter::StaticClass(), SpawnTransform, SpawnParams);
+
+	/* Setup customer properties */
+	Customer->Setup(CustomerName);
+	Customer->SetActorRotation(FRotator(0.0f, -25.0f, 0.0f));
+	Customer->SetDirection(SpawnDirection);
+
+	/* Add spawned customer to CustomerArray */
+	CustomerArray.Push(Customer);
 }

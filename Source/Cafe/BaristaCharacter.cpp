@@ -10,14 +10,17 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
+/* Sets default values for this actors properties */
 ABaristaCharacter::ABaristaCharacter()
 {
+	/* Find and assign barista character info data table */
 	static ConstructorHelpers::FObjectFinder<UDataTable> BaristaCharacterInfoDataTableAsset(TEXT("/Game/Cafe/DataTables/DT_BaristaCharacterInfo.DT_BaristaCharacterInfo"));
 	if (BaristaCharacterInfoDataTableAsset.Succeeded())
 	{
 		BaristaCharacterInfoDataTable = BaristaCharacterInfoDataTableAsset.Object;
 	}
 
+	/* If found, assign contents of rows to structs */
 	if (BaristaCharacterInfoDataTable)
 	{
 		static const FString ContextString(TEXT("Barista Character Info Context"));
@@ -55,14 +58,18 @@ void ABaristaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	}
 }
 
+/* Updates the flipbook of the flipbook component based on character direction */
 void ABaristaCharacter::UpdateFlipbook()
 {
 	UPaperFlipbook* NewFlipbook = nullptr;;
 
+	/* If the player is moving */
 	if (IsMoving())
 	{
+		/* Return if a data table entry wasn't found */
 		if (!BaristaWalkingInfo) return;
-		
+
+		/* Assign flipbooks based on direction */
 		switch (Direction)
 		{
 			case EDirection::None:
@@ -96,10 +103,13 @@ void ABaristaCharacter::UpdateFlipbook()
 				NewFlipbook = nullptr;
 		}
 	}
+	/* If the player is standing still */
 	else
 	{
+		/* Return if a data table entry wasn't found */
 		if (!BaristaIdleInfo) return;
-		
+
+		/* Assign flipbooks based on direction */
 		switch (Direction)
 		{
 			case EDirection::None:
@@ -133,6 +143,7 @@ void ABaristaCharacter::UpdateFlipbook()
 				NewFlipbook = nullptr;
 		}
 	}
+	/* Assign flipbook variable to the flipbook component */
 	FlipbookComponent->SetFlipbook(NewFlipbook);
 }
 
@@ -209,12 +220,14 @@ void ABaristaCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+/* Called when the player is standing still */
 void ABaristaCharacter::Idle()
 {
 	SetMoving(false);
 	UpdateFlipbook();
 }
 
+/* Called when the player presses the interact input key */
 void ABaristaCharacter::Interact(const FInputActionValue& Value)
 {
 	if (Controller)
@@ -222,10 +235,12 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 		FHitResult* OutHit = new FHitResult();
 		bool LineTrace = LineTraceFromMousePosition(*OutHit);
 
+		/* If the line trace found nothing, return */
 		if (!LineTrace) return;
 
 		if (AActor* HitActor = OutHit->GetActor())
 		{
+			/* If the line trace hit an actor that implements IInteractable */
 			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
 			{
 				/* Execute interact function on the interactable actor */

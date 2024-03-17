@@ -26,6 +26,7 @@ enum class ECustomerModifier : uint16
 };
 ENUM_CLASS_FLAGS(ECustomerModifier);
 
+/* DataTable struct containing information about a customer's modifiers */
 USTRUCT(BlueprintType)
 struct FCustomerModifierInfo : public FTableRowBase
 {
@@ -51,9 +52,14 @@ protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
+	/* Called every frame */
+	virtual void Tick(float DeltaSeconds) override;
+
+	/* Update flipbook of flipbook component */
 	virtual void UpdateFlipbook() override;
 
 public:
+	/* Sets properties from data table */
 	void Setup(FString Name);
 	
 	/* Getter for customer characteristic */

@@ -25,6 +25,7 @@ enum class EDirection : uint8
 };
 ENUM_CLASS_FLAGS(EDirection);
 
+/* DataTable struct containing flipbook information for CafeCharacters */
 USTRUCT(BlueprintType)
 struct FCharacterInfo : public FTableRowBase
 {
@@ -61,11 +62,11 @@ class CAFE_API ACafeCharacter : public APaperCharacter
 	GENERATED_BODY()
 
 public:
-	/* Set defaults for this actor*/
+	/* Sets default values for this actors properties */
 	ACafeCharacter();
 
 protected:
-	/* Update flipbook logic */
+	/* Update the flipbook of the flipbook component */
 	virtual void UpdateFlipbook();
 
 public:
@@ -73,15 +74,14 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE EDirection GetDirection() { return Direction; }
 
-	/* Getter for character direction */
+	/* Setter for character direction */
 	UFUNCTION(BlueprintCallable)
 	void SetDirection(EDirection NewDirection);
 
 	/* Getter for character movement state */
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsMoving() { return Moving; }
-
-protected:
+	
 	/* Setter for character movement state */
 	UFUNCTION(BlueprintCallable)
 	void SetMoving(bool Is);

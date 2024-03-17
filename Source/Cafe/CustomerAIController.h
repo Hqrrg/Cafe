@@ -10,14 +10,17 @@ UCLASS()
 class CAFE_API ACustomerAIController : public AAIController
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
-	class UBehaviorTree* BehaviorTree;
 	
 public:
 	/* Sets default values for this actor's properties */
 	ACustomerAIController();
 
 protected:
+	/* Called when possessing a pawn */
 	virtual void OnPossess(APawn* InPawn) override;
+
+private:
+	/* Behaviour tree property */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
+	class UBehaviorTree* BehaviorTree;
 };

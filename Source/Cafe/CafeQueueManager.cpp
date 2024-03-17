@@ -10,12 +10,7 @@ ACafeQueueManager::ACafeQueueManager()
 	/* Disable tick for this actor to improve performance */
 	PrimaryActorTick.bCanEverTick = false;
 
+	/* Create scene component and set as root */
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(SceneComponent);
-}
-
-/* Called when this actor is spawned */
-void ACafeQueueManager::BeginPlay()
-{
-	Super::BeginPlay();
 }

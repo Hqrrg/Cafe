@@ -12,7 +12,8 @@ ACustomerAIController::ACustomerAIController()
 	/* Disable tick for this actor to improve performance */
 	PrimaryActorTick.bCanEverTick = false;
 
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BehaviourTreeAsset(TEXT("/Game/Cafe/Blueprints/BT_Customer.BT_Customer"));
+	/* Find and assign behaviour tree to component */
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BehaviourTreeAsset(TEXT("/Game/Cafe/Blueprints/AI/BT_Customer.BT_Customer"));
 	if (BehaviourTreeAsset.Succeeded())
 	{
 		BehaviorTree = BehaviourTreeAsset.Object;
@@ -21,10 +22,11 @@ ACustomerAIController::ACustomerAIController()
 	GetPathFollowingComponent()->SetStopMovementOnFinish(false);
 }
 
+/* Run behaviour tree when possessing a pawn */
 void ACustomerAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-
+	
 	if (BehaviorTree)
 	{
 		RunBehaviorTree(BehaviorTree);
