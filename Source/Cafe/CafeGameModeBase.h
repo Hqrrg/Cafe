@@ -9,6 +9,8 @@
 #include "CafeGameModeBase.generated.h"
 
 
+enum class EOrderSatisfaction : uint8;
+
 /* Customer Rarity Enum */
 UENUM(BlueprintType)
 enum ECustomerRarity : uint8
@@ -20,7 +22,7 @@ enum ECustomerRarity : uint8
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerOrdered, class ACustomerCharacter*, Customer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerLeft, class ACustomerCharacter*, Customer);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, enum EOrderSatisfaction, OrderSatisfaction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, EOrderSatisfaction, OrderSatisfaction);
 
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
@@ -48,12 +50,12 @@ public:
 	UFUNCTION(BlueprintPure) /* Get the queue manager */
 	FORCEINLINE ACafeQueueManager* GetQueueManager() { return QueueManager; }
 
+	UFUNCTION()
+	void RemoveCustomer(class ACustomerCharacter* Customer);
+
 private:
 	UFUNCTION() /* Spawn a customer character */
 	void SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection);
-
-	UFUNCTION()
-	void RemoveCustomer(class ACustomerCharacter* Customer);
 
 public:
 	/* Default map of customer names with an associated customer rarity */
@@ -62,15 +64,11 @@ public:
 
 	/* Customer Ordered Event Dispatcher */
 	UPROPERTY(BlueprintAssignable)
-	FCustomerOrdered OnCustomerOrdered;
-	
-	/* Customer Left Event Dispatcher */
-	UPROPERTY(BlueprintAssignable)
-	FCustomerLeft OnCustomerLeft;
+	FCustomerOrdered OnCustomerBeginOrder;
 
-	/* Customer Order Concluded Event Dispatcher */
+	/* Customer MakeOrder Concluded Event Dispatcher */
 	UPROPERTY(BlueprintAssignable)
-	FCustomerOrderConcluded OnCustomerOrderConcluded;
+	FCustomerOrderConcluded OnCustomerEndOrder;
 	
 	
 private:

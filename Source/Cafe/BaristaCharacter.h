@@ -8,6 +8,17 @@
 #include "Engine/DataTable.h"
 #include "BaristaCharacter.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FInventory
+{
+	GENERATED_BODY()
+
+	TMap<FString, int32> IngredientMap;
+
+	bool HasIngredient() { return true; }
+};
+
 UCLASS()
 class CAFE_API ABaristaCharacter : public ACafeCharacter
 {
@@ -32,6 +43,8 @@ public:
 protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void PossessedBy(AController* NewController) override;;
 
@@ -58,7 +71,10 @@ public:
 
 private:
 	/* Return true if line trace hits an actor and set by reference */
-	bool LineTraceFromMousePosition(FHitResult& OutHit);
+	bool LineTraceFromMousePosition(FHitResult& HitResult);
+
+	FHitResult* OutHit = new FHitResult();
+	bool LineTrace;
 
 	UPROPERTY()
 	UDataTable* BaristaCharacterInfoDataTable = nullptr;

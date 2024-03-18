@@ -88,7 +88,9 @@ void AStation::Make(const FInputActionValue& Value)
 	}
 
 	/* We can then add MakeKey to an array */
-
+	InputArray.Add(MakeKey);
+	// void CheckArray();
+	
 	/* Debug */
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Magenta, FString::Printf(TEXT("%i"), MakeKey));
 	

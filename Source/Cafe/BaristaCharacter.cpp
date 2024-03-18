@@ -35,6 +35,17 @@ void ABaristaCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ABaristaCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (Controller)
+	{
+		OutHit = new FHitResult();
+		LineTrace = LineTraceFromMousePosition(*OutHit);
+	}
+}
+
 void ABaristaCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -171,9 +182,6 @@ void ABaristaCharacter::Move(const FInputActionValue& Value)
 {
 	if (Controller)
 	{
-		FHitResult* OutHit = new FHitResult();
-		bool LineTrace = LineTraceFromMousePosition(*OutHit);
-		
 		/* If line trace finds nothing, return */
 		if (!LineTrace) return;
 		
@@ -251,32 +259,32 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 {
 	if (Controller)
 	{
-		FHitResult* OutHit = new FHitResult();
-		bool LineTrace = LineTraceFromMousePosition(*OutHit);
-
 		/* If the line trace found nothing, return */
 		if (!LineTrace) return;
 
 		if (AActor* HitActor = OutHit->GetActor())
 		{
-			/* If the line trace hit an actor that implements IInteractable */
-			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
+			if ((GetActorLocation() - HitActor->GetActorLocation()).Length() <= 100.0f)
 			{
-				/* Set InteractedPawn on the interactable actor */
-				IInteractable::Execute_SetInteractedPawn(HitActor, this);
-				
-				/* Execute interact function on the interactable actor */
-				IInteractable::Execute_Interact(HitActor);
+				/* If the line trace hit an actor that implements IInteractable */
+				if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
+				{
+					/* Set InteractedPawn on the interactable actor */
+					IInteractable::Execute_SetInteractedPawn(HitActor, this);
+					
+					/* Execute interact function on the interactable actor */
+					IInteractable::Execute_Interact(HitActor);
 
-				/* If we were not worrying about BlueprintNativeEvent
-				 * the function call would look like this: Interactable->Interact(); */
+					/* If we were not worrying about BlueprintNativeEvent
+					 * the function call would look like this: Interactable->Interact(); */
+				}
 			}
 		}
 	}
 }
 
 /* Return true if line trace hits an actor and set by reference */
-bool ABaristaCharacter::LineTraceFromMousePosition(FHitResult& OutHit)
+bool ABaristaCharacter::LineTraceFromMousePosition(FHitResult& HitResult)
 {
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -299,15 +307,15 @@ bool ABaristaCharacter::LineTraceFromMousePosition(FHitResult& OutHit)
 		QueryParams.AddIgnoredActor(this);
 		
 		/* Line Trace */
-		bool LineTrace = GetWorld()->LineTraceSingleByChannel(
-			OutHit,
+		bool LineTraceFromMousePos = GetWorld()->LineTraceSingleByChannel(
+			HitResult,
 			TraceStartLoc,
 			TraceEndLoc,
 			ECC_Visibility,
 			QueryParams
 		);
 
-		return LineTrace;
+		return LineTraceFromMousePos;
 	}
 	return false;
 }

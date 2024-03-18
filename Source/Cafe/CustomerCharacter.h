@@ -76,6 +76,8 @@ public:
 
 private:
 	void ApplyModifiers();
+
+	void GenerateOrder();
 	
 public:
 	/* Getter for customer characteristic */
@@ -92,7 +94,7 @@ public:
 
 	/* Called when the customer is at the front of the queue */
 	UFUNCTION(BlueprintCallable)
-	void Order();
+	void MakeOrder();
 
 	/* Called when the customer's order is concluded - successfully or not */
 	UFUNCTION(BlueprintCallable)
@@ -103,16 +105,20 @@ private:
 	class ACafeGameModeBase* GameModeRef;
 	
 	ECustomerModifier Modifier = ECustomerModifier::Normal;
+
+	UPROPERTY()
+	class UOrder* Order = nullptr;
 	
 	int32 QueuePointIndex = 0;
 	
 	FTimerHandle OrderTimerHandle;
 
-	/* Order Information */
+	/* MakeOrder Information */
 	float OrderTimerDuration = 30.0f;
 	float MaxTipAmount = 100.0f;
 	int32 MaxTipMultiplier = 1;
 	int32 ToleratedAttempts = 3;
+	FVector2D OrderLength = FVector2D(3, 5);
 
 	/* Data Tables & Structs */
 	UPROPERTY()

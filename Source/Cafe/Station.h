@@ -70,4 +70,7 @@ public:
 private:
 	UPROPERTY()
 	APawn* InteractedPawn;
+
+	UPROPERTY()
+	TArray<EMakeKey> InputArray;
 };
