@@ -33,6 +33,10 @@ protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
+	virtual void PossessedBy(AController* NewController) override;;
+
+	virtual void UnPossessed() override;
+
 	/* Setup input component */
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 

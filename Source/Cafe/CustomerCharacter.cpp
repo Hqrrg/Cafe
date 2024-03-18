@@ -3,7 +3,9 @@
 
 #include "CustomerCharacter.h"
 
+#include "CafeGameModeBase.h"
 #include "CustomerAIController.h"
+#include "Kismet/GameplayStatics.h"
 
 
 /* Sets default values for this actors properties */
@@ -35,7 +37,20 @@ ACustomerCharacter::ACustomerCharacter()
 void ACustomerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameModeRef = Cast<ACafeGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	UpdateFlipbook();
+}
+
+void ACustomerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (EndPlayReason == EEndPlayReason::Destroyed)
+	{
+		if (!GameModeRef) return;
+		
+		GameModeRef->GetQueueManager()->SetQueuePointOccupied(QueuePointIndex, false);
+	}
+	Super::EndPlay(EndPlayReason);
 }
 
 /* Called every frame */
@@ -194,6 +209,114 @@ void ACustomerCharacter::Setup(FString Name)
 	{
 		Modifier |= CustomerModifierInfo->FirstModifier;
 		Modifier |= CustomerModifierInfo->SecondModifier;
+	}
+
+	ApplyModifiers();
+}
+
+void ACustomerCharacter::ApplyModifiers()
+{
+	switch (Modifier)
+	{
+		case ECustomerModifier::Normal:
+			break;
+		case ECustomerModifier::Rushing:
+			OrderTimerDuration = 20.0f;
+			break;
+		case ECustomerModifier::Grumpy:
+			ToleratedAttempts = 1;
+			break;
+		case ECustomerModifier::Generous:
+			MaxTipMultiplier = 2;
+			break;
+		/* TO-DO */
+		case ECustomerModifier::Snob:
+			break;
+
+		case ECustomerModifier::RushingGrumpy:
+			OrderTimerDuration = 20.0f;
+			ToleratedAttempts = 1;
+			break;
+		case ECustomerModifier::RushingGenerous:
+			OrderTimerDuration = 20.0f;
+			MaxTipMultiplier = 2;
+			break;
+		/* TO-DO */
+		case ECustomerModifier::RushingSnob:
+			OrderTimerDuration = 20.0f;
+			break;
+		case ECustomerModifier::GrumpyGenerous:
+			ToleratedAttempts = 1;
+			MaxTipMultiplier = 2;
+			break;
+		/* TO-DO */
+		case ECustomerModifier::GrumpySnob:
+			ToleratedAttempts = 1;
+			break;
+		/* TO-DO */
+		case ECustomerModifier::GenerousSnob:
+			MaxTipMultiplier = 2;
+			break;
+	default:
+		break;
+	}
+}
+
+void ACustomerCharacter::Order()
+{
+	if (!GameModeRef) return;
+	
+	GameModeRef->OnCustomerOrdered.Broadcast(this);
+
+	FTimerDelegate OrderTimerDelegate;
+	OrderTimerDelegate.BindUFunction(this, FName("ConcludeOrder"), );
+	
+	GetWorldTimerManager().SetTimer(OrderTimerHandle, OrderTimerDelegate, OrderTimerDuration, true);
+}
+
+void ACustomerCharacter::ConcludeOrder(EOrderSatisfaction& OrderSatisfaction)
+{
+	OrderSatisfaction = EOrderSatisfaction::Good;
+	
+	FTimerManager& TimerManager = GetWorldTimerManager();
+	
+	if (TimerManager.TimerExists(OrderTimerHandle))
+	{
+		TimerManager.PauseTimer(OrderTimerHandle);
+	}
+	
+	const float TimeElapsed = FMath::Clamp(TimerManager.GetTimerElapsed(OrderTimerHandle), 0.0f, OrderTimerDuration);
+	
+	const float TipMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, OrderTimerDuration), FVector2D(MaxTipMultiplier, 0.0f), TimeElapsed);
+	const float TipAmount = MaxTipAmount * TipMultiplier;
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("TIP: £%f"), TipAmount));
+
+	if (GameModeRef)
+	{
+		GameModeRef->OnCustomerLeft.Broadcast(this);
+	}
+	Destroy();
+
+	if (TipMultiplier > MaxTipMultiplier * 0.8)
+	{
+		OrderSatisfaction = EOrderSatisfaction::Excellent;
+	}
+	else if (TipMultiplier > MaxTipMultiplier * 0.6)
+	{
+		OrderSatisfaction = EOrderSatisfaction::VeryGood;
+	}
+	else if (TipMultiplier > MaxTipMultiplier * 0.4)
+	{
+		OrderSatisfaction = EOrderSatisfaction::Good;
+	}
+	else if (TipMultiplier > MaxTipMultiplier * 0.2)
+	{
+		OrderSatisfaction = EOrderSatisfaction::Poor;
+	}
+	else if (TipMultiplier > 0.0f)
+	{
+		OrderSatisfaction = EOrderSatisfaction::VeryPoor;
 	}
 }
 

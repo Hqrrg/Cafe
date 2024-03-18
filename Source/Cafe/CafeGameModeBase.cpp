@@ -46,6 +46,8 @@ void ACafeGameModeBase::BeginPlay()
 
 		GetWorldTimerManager().SetTimer(SpawnCustomerTimerHandle, SpawnCustomerTimerDelegate, 5.0f, true);
 	}
+
+	OnCustomerLeft.AddDynamic(this, &ACafeGameModeBase::RemoveCustomer);
 }
 
 /* Updates the player's camera when they spawn */
@@ -117,4 +119,9 @@ void ACafeGameModeBase::SpawnCustomer(FTransform SpawnTransform, EDirection Spaw
 
 	/* Add spawned customer to CustomerArray */
 	CustomerArray.Push(Customer);
+}
+
+void ACafeGameModeBase::RemoveCustomer(ACustomerCharacter* Customer)
+{
+	CustomerArray.Remove(Customer);
 }

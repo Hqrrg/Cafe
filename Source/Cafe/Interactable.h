@@ -25,8 +25,14 @@ public:
 	void Interact();
 	
 	 /* Overridable function which can be implemented in blueprints
-	 * Called when a subclass is selected or deselected
-	 * Not "Virtual" because of BlueprintNativeEvent */
+	  * Called when a subclass is selected or deselected
+	  * Not "Virtual" because of BlueprintNativeEvent */
 	UFUNCTION(BlueprintNativeEvent)
 	void Selected(bool Is);
+
+	/* Overridable function which can be implemented in blueprints
+	 * Called to pass reference to pawn through a subclass
+	 * Not "Virtual" because of BlueprintNativeEvent */
+	UFUNCTION(BlueprintNativeEvent)
+	void SetInteractedPawn(class APawn* Pawn);
 };

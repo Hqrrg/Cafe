@@ -26,6 +26,16 @@ enum class ECustomerModifier : uint16
 };
 ENUM_CLASS_FLAGS(ECustomerModifier);
 
+UENUM(BlueprintType)
+enum class EOrderSatisfaction : uint8
+{
+	Excellent,
+	VeryGood,
+	Good,
+	Poor,
+	VeryPoor
+};
+
 /* DataTable struct containing information about a customer's modifiers */
 USTRUCT(BlueprintType)
 struct FCustomerModifierInfo : public FTableRowBase
@@ -52,6 +62,8 @@ protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;;
+
 	/* Called every frame */
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -61,14 +73,48 @@ protected:
 public:
 	/* Sets properties from data table */
 	void Setup(FString Name);
+
+private:
+	void ApplyModifiers();
 	
+public:
 	/* Getter for customer characteristic */
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ECustomerModifier GetModifier() { return Modifier; }
+
+	/* Get reference to index of queue point customer is occupying */
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetQueuePointIndex() { return QueuePointIndex; }
+
+	/* Set reference to index of queue point customer is occupying */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetQueuePointIndex(int32 Index) { QueuePointIndex = Index; }
+
+	/* Called when the customer is at the front of the queue */
+	UFUNCTION(BlueprintCallable)
+	void Order();
+
+	/* Called when the customer's order is concluded - successfully or not */
+	UFUNCTION(BlueprintCallable)
+	void ConcludeOrder(EOrderSatisfaction& OrderSatisfaction);
 	
 private:
+	UPROPERTY()
+	class ACafeGameModeBase* GameModeRef;
+	
 	ECustomerModifier Modifier = ECustomerModifier::Normal;
+	
+	int32 QueuePointIndex = 0;
+	
+	FTimerHandle OrderTimerHandle;
 
+	/* Order Information */
+	float OrderTimerDuration = 30.0f;
+	float MaxTipAmount = 100.0f;
+	int32 MaxTipMultiplier = 1;
+	int32 ToleratedAttempts = 3;
+
+	/* Data Tables & Structs */
 	UPROPERTY()
 	UDataTable* CustomerCharacterInfoDataTable = nullptr;
 

@@ -33,6 +33,11 @@ ABaristaCharacter::ABaristaCharacter()
 void ABaristaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABaristaCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
 
 	/* Add input mapping context */
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -40,6 +45,20 @@ void ABaristaCharacter::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}
+}
+
+void ABaristaCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
+	/* Remove input mapping context */
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->RemoveMappingContext(InputMappingContext);
 		}
 	}
 }
@@ -243,6 +262,9 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 			/* If the line trace hit an actor that implements IInteractable */
 			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
 			{
+				/* Set InteractedPawn on the interactable actor */
+				IInteractable::Execute_SetInteractedPawn(HitActor, this);
+				
 				/* Execute interact function on the interactable actor */
 				IInteractable::Execute_Interact(HitActor);
 

@@ -18,6 +18,9 @@ enum ECustomerRarity : uint8
 	Common = 4
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerOrdered, class ACustomerCharacter*, Customer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerLeft, class ACustomerCharacter*, Customer);
+
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
 {
@@ -48,10 +51,21 @@ private:
 	UFUNCTION() /* Spawn a customer character */
 	void SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection);
 
+	UFUNCTION()
+	void RemoveCustomer(class ACustomerCharacter* Customer);
+
 public:
 	/* Default map of customer names with an associated customer rarity */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Customers")
 	TMap<FString, TEnumAsByte<ECustomerRarity>> DefaultCustomerMap;
+
+	/* Customer Ordered Event Dispatcher */
+	UPROPERTY(BlueprintAssignable)
+	FCustomerOrdered OnCustomerOrdered;
+	
+	/* Customer Left Event Dispatcher */
+	UPROPERTY(BlueprintAssignable)
+	FCustomerLeft OnCustomerLeft;
 	
 private:
 	UPROPERTY() /* Camera Manager */
