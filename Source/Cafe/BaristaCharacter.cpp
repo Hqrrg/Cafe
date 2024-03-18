@@ -10,6 +10,25 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
+/* Sets default values for this actors properties */
+ABaristaCharacter::ABaristaCharacter()
+{
+	/* Find and assign barista character info data table */
+	static ConstructorHelpers::FObjectFinder<UDataTable> BaristaCharacterInfoDataTableAsset(TEXT("/Game/Cafe/DataTables/DT_BaristaCharacterInfo.DT_BaristaCharacterInfo"));
+	if (BaristaCharacterInfoDataTableAsset.Succeeded())
+	{
+		BaristaCharacterInfoDataTable = BaristaCharacterInfoDataTableAsset.Object;
+	}
+
+	/* If found, assign contents of rows to structs */
+	if (BaristaCharacterInfoDataTable)
+	{
+		static const FString ContextString(TEXT("Barista Character Info Context"));
+		BaristaIdleInfo = BaristaCharacterInfoDataTable->FindRow<FCharacterInfo>(FName("Idle"), ContextString, true);
+		BaristaWalkingInfo = BaristaCharacterInfoDataTable->FindRow<FCharacterInfo>(FName("Walking"), ContextString, true);
+	}
+}
+
 /* Called when actor is spawned */
 void ABaristaCharacter::BeginPlay()
 {
@@ -37,6 +56,95 @@ void ABaristaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		/* Bind interact input logic */
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ABaristaCharacter::Interact);
 	}
+}
+
+/* Updates the flipbook of the flipbook component based on character direction */
+void ABaristaCharacter::UpdateFlipbook()
+{
+	UPaperFlipbook* NewFlipbook = nullptr;;
+
+	/* If the player is moving */
+	if (IsMoving())
+	{
+		/* Return if a data table entry wasn't found */
+		if (!BaristaWalkingInfo) return;
+
+		/* Assign flipbooks based on direction */
+		switch (Direction)
+		{
+			case EDirection::None:
+				NewFlipbook = BaristaWalkingInfo->Down;
+				break;
+			case EDirection::Up:
+				NewFlipbook = BaristaWalkingInfo->Up;
+				break;
+			case EDirection::Down:
+				NewFlipbook = BaristaWalkingInfo->Down;
+				break;
+			case EDirection::Left:
+				NewFlipbook = BaristaWalkingInfo->Left;
+				break;
+			case EDirection::Right:
+				NewFlipbook = BaristaWalkingInfo->Right;
+				break;
+			case EDirection::UpLeft:
+				NewFlipbook = BaristaWalkingInfo->UpLeft;
+				break;
+			case EDirection::UpRight:
+				NewFlipbook = BaristaWalkingInfo->UpRight;
+				break;
+			case EDirection::DownLeft:
+				NewFlipbook = BaristaWalkingInfo->DownLeft;
+				break;
+			case EDirection::DownRight:
+				NewFlipbook = BaristaWalkingInfo->DownRight;
+				break;
+			default:
+				NewFlipbook = nullptr;
+		}
+	}
+	/* If the player is standing still */
+	else
+	{
+		/* Return if a data table entry wasn't found */
+		if (!BaristaIdleInfo) return;
+
+		/* Assign flipbooks based on direction */
+		switch (Direction)
+		{
+			case EDirection::None:
+				NewFlipbook = BaristaIdleInfo->Down;
+				break;
+			case EDirection::Up:
+				NewFlipbook = BaristaIdleInfo->Up;
+				break;
+			case EDirection::Down:
+				NewFlipbook = BaristaIdleInfo->Down;
+				break;
+			case EDirection::Left:
+				NewFlipbook = BaristaIdleInfo->Left;
+				break;
+			case EDirection::Right:
+				NewFlipbook = BaristaIdleInfo->Right;
+				break;
+			case EDirection::UpLeft:
+				NewFlipbook = BaristaIdleInfo->UpLeft;
+				break;
+			case EDirection::UpRight:
+				NewFlipbook = BaristaIdleInfo->UpRight;
+				break;
+			case EDirection::DownLeft:
+				NewFlipbook = BaristaIdleInfo->DownLeft;
+				break;
+			case EDirection::DownRight:
+				NewFlipbook = BaristaIdleInfo->DownRight;
+				break;
+			default:
+				NewFlipbook = nullptr;
+		}
+	}
+	/* Assign flipbook variable to the flipbook component */
+	FlipbookComponent->SetFlipbook(NewFlipbook);
 }
 
 /* Movement input logic */
@@ -112,12 +220,14 @@ void ABaristaCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+/* Called when the player is standing still */
 void ABaristaCharacter::Idle()
 {
 	SetMoving(false);
 	UpdateFlipbook();
 }
 
+/* Called when the player presses the interact input key */
 void ABaristaCharacter::Interact(const FInputActionValue& Value)
 {
 	if (Controller)
@@ -125,10 +235,12 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 		FHitResult* OutHit = new FHitResult();
 		bool LineTrace = LineTraceFromMousePosition(*OutHit);
 
+		/* If the line trace found nothing, return */
 		if (!LineTrace) return;
 
 		if (AActor* HitActor = OutHit->GetActor())
 		{
+			/* If the line trace hit an actor that implements IInteractable */
 			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
 			{
 				/* Execute interact function on the interactable actor */

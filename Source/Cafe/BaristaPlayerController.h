@@ -7,9 +7,7 @@
 #include "BaristaPlayerController.generated.h"
 
 class ACafeCamera;
-/**
- * 
- */
+
 UCLASS()
 class CAFE_API ABaristaPlayerController : public APlayerController
 {

@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PaperFlipbookComponent.h"
 #include "PaperCharacter.h"
+#include "Engine/DataTable.h"
 #include "CafeCharacter.generated.h"
 
 /* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
@@ -23,34 +25,71 @@ enum class EDirection : uint8
 };
 ENUM_CLASS_FLAGS(EDirection);
 
+/* DataTable struct containing flipbook information for CafeCharacters */
+USTRUCT(BlueprintType)
+struct FCharacterInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* Up;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* Down;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* Left;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* Right;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* UpLeft;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* UpRight;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* DownLeft;
+
+	UPROPERTY(EditAnywhere)
+	UPaperFlipbook* DownRight;
+};
 
 UCLASS()
 class CAFE_API ACafeCharacter : public APaperCharacter
 {
 	GENERATED_BODY()
+
 public:
-	/* Set defaults for this actor*/
+	/* Sets default values for this actors properties */
 	ACafeCharacter();
 
 protected:
-	/* Update flipbook logic */
-	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateFlipbook();
+	/* Update the flipbook of the flipbook component */
+	virtual void UpdateFlipbook();
 
 public:
 	/* Getter for character direction */
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE EDirection GetDirection() { return Direction; }
 
+	/* Setter for character direction */
+	UFUNCTION(BlueprintCallable)
+	void SetDirection(EDirection NewDirection);
+
 	/* Getter for character movement state */
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsMoving() { return Moving; }
-
-protected:
+	
 	/* Setter for character movement state */
-	FORCEINLINE void SetMoving(bool Is) { Moving = Is; }
+	UFUNCTION(BlueprintCallable)
+	void SetMoving(bool Is);
 	
 protected:
+	UPROPERTY()
+	UPaperFlipbookComponent* FlipbookComponent;
+	
 	EDirection Direction = EDirection::None;
 	bool Moving = false;
 };

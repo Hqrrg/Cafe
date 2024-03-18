@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
+#include "Engine/DataTable.h"
 #include "CustomerCharacter.generated.h"
 
 /* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
 UENUM(NotBlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
-enum class ECustomerCharacteristic : uint16
+enum class ECustomerModifier : uint16
 {
 	Normal				= 0b00000000, // 0
 	Rushing				= 0b00000001, // 1
@@ -23,7 +24,20 @@ enum class ECustomerCharacteristic : uint16
 	GrumpySnob 			= Grumpy | Snob			UMETA(Hidden), // 10
 	GenerousSnob 		= Generous | Snob		UMETA(Hidden) // 12
 };
-ENUM_CLASS_FLAGS(ECustomerCharacteristic);
+ENUM_CLASS_FLAGS(ECustomerModifier);
+
+/* DataTable struct containing information about a customer's modifiers */
+USTRUCT(BlueprintType)
+struct FCustomerModifierInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ECustomerModifier FirstModifier = ECustomerModifier::Normal;
+
+	UPROPERTY(EditAnywhere)
+	ECustomerModifier SecondModifier = ECustomerModifier::Normal;
+};
 
 UCLASS()
 class CAFE_API ACustomerCharacter : public ACafeCharacter
@@ -38,15 +52,31 @@ protected:
 	/* Called when this actor is spawned */
 	virtual void BeginPlay() override;
 
+	/* Called every frame */
+	virtual void Tick(float DeltaSeconds) override;
+
+	/* Update flipbook of flipbook component */
+	virtual void UpdateFlipbook() override;
+
 public:
+	/* Sets properties from data table */
+	void Setup(FString Name);
+	
 	/* Getter for customer characteristic */
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE ECustomerCharacteristic GetCharacteristic() { return Characteristic; }
+	FORCEINLINE ECustomerModifier GetModifier() { return Modifier; }
 	
 private:
-	/* Array of characteristics that can be edited in defaults for each instance of this class */
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, BlueprintReadWrite, Category = Defaults, DisplayName = "Characteristics", meta = (AllowPrivateAccess = "true"))
-	TArray<ECustomerCharacteristic> DefaultCharacteristicsArray;
+	ECustomerModifier Modifier = ECustomerModifier::Normal;
 
-	ECustomerCharacteristic Characteristic;
+	UPROPERTY()
+	UDataTable* CustomerCharacterInfoDataTable = nullptr;
+
+	FCharacterInfo* CustomerIdleInfo = nullptr;
+	FCharacterInfo* CustomerWalkingInfo = nullptr;
+
+	UPROPERTY()
+	UDataTable* CustomerModifierInfoDataTable = nullptr;
+
+	FCustomerModifierInfo* CustomerModifierInfo = nullptr;
 };

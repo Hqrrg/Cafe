@@ -4,12 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "CafeCameraManager.h"
+#include "CafeQueueManager.h"
 #include "GameFramework/GameModeBase.h"
 #include "CafeGameModeBase.generated.h"
 
-/**
- * 
- */
+
+/* Customer Rarity Enum */
+UENUM(BlueprintType)
+enum ECustomerRarity : uint8
+{
+	Rare = 0,
+	Uncommon = 2,
+	Common = 4
+};
+
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
 {
@@ -20,6 +28,9 @@ public:
 	ACafeGameModeBase();
 
 protected:
+	/* Called when game starts */
+	virtual void BeginPlay() override;
+	
 	/* Called when spawning a player controller */
 	virtual APlayerController* SpawnPlayerController(ENetRole InRemoteRole, const FString& Options) override;
 
@@ -27,10 +38,31 @@ protected:
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 
 public:
-	UFUNCTION(BlueprintGetter) /* Get the camera manager */
+	UFUNCTION(BlueprintPure) /* Get the camera manager */
 	FORCEINLINE ACafeCameraManager* GetCameraManager() { return CameraManager; }
-		
+
+	UFUNCTION(BlueprintPure) /* Get the queue manager */
+	FORCEINLINE ACafeQueueManager* GetQueueManager() { return QueueManager; }
+
 private:
-	UPROPERTY()
+	UFUNCTION() /* Spawn a customer character */
+	void SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection);
+
+public:
+	/* Default map of customer names with an associated customer rarity */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Customers")
+	TMap<FString, TEnumAsByte<ECustomerRarity>> DefaultCustomerMap;
+	
+private:
+	UPROPERTY() /* Camera Manager */
 	ACafeCameraManager* CameraManager = nullptr;
+
+	UPROPERTY() /* Queue Manager */
+	ACafeQueueManager* QueueManager = nullptr;
+
+	UPROPERTY() /* Customer Instance Array */
+	TArray<class ACustomerCharacter*> CustomerArray;
+
+	/* TimerHandle for spawning customers */
+	FTimerHandle SpawnCustomerTimerHandle;
 };
