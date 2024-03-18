@@ -96,7 +96,7 @@ public:
 
 	/* Called when the customer's order is concluded - successfully or not */
 	UFUNCTION(BlueprintCallable)
-	void ConcludeOrder(EOrderSatisfaction& OrderSatisfaction);
+	void ConcludeOrder();
 	
 private:
 	UPROPERTY()

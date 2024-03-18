@@ -20,6 +20,7 @@ enum ECustomerRarity : uint8
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerOrdered, class ACustomerCharacter*, Customer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerLeft, class ACustomerCharacter*, Customer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, enum EOrderSatisfaction, OrderSatisfaction);
 
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
@@ -66,6 +67,11 @@ public:
 	/* Customer Left Event Dispatcher */
 	UPROPERTY(BlueprintAssignable)
 	FCustomerLeft OnCustomerLeft;
+
+	/* Customer Order Concluded Event Dispatcher */
+	UPROPERTY(BlueprintAssignable)
+	FCustomerOrderConcluded OnCustomerOrderConcluded;
+	
 	
 private:
 	UPROPERTY() /* Camera Manager */

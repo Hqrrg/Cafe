@@ -267,15 +267,14 @@ void ACustomerCharacter::Order()
 	if (!GameModeRef) return;
 	
 	GameModeRef->OnCustomerOrdered.Broadcast(this);
-
-	FTimerDelegate OrderTimerDelegate;
-	OrderTimerDelegate.BindUFunction(this, FName("ConcludeOrder"), );
 	
-	GetWorldTimerManager().SetTimer(OrderTimerHandle, OrderTimerDelegate, OrderTimerDuration, true);
+	GetWorldTimerManager().SetTimer(OrderTimerHandle, this, &ACustomerCharacter::ConcludeOrder, OrderTimerDuration, true);
 }
 
-void ACustomerCharacter::ConcludeOrder(EOrderSatisfaction& OrderSatisfaction)
+void ACustomerCharacter::ConcludeOrder()
 {
+	EOrderSatisfaction OrderSatisfaction = EOrderSatisfaction::Good;
+	
 	OrderSatisfaction = EOrderSatisfaction::Good;
 	
 	FTimerManager& TimerManager = GetWorldTimerManager();
@@ -318,5 +317,7 @@ void ACustomerCharacter::ConcludeOrder(EOrderSatisfaction& OrderSatisfaction)
 	{
 		OrderSatisfaction = EOrderSatisfaction::VeryPoor;
 	}
+
+	GameModeRef->OnCustomerOrderConcluded.Broadcast(this, OrderSatisfaction);
 }
 
