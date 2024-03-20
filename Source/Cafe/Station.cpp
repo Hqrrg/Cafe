@@ -102,7 +102,7 @@ void AStation::Exit(const FInputActionValue& Value)
 	
 	/* Repossess InteractedPawn (Barista) */
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	PlayerController->Possess(InteractedPawn);
+	PlayerController->Possess(BaristaRef);
 }
 
 /* Interact behaviour ~ _Impementation suffix because of BlueprintNativeEvent */
@@ -111,7 +111,7 @@ void AStation::Interact_Implementation()
 	IInteractable::Interact_Implementation();
 
 	/* Possess this pawn */
-	APlayerController* PlayerController = Cast<APlayerController>(InteractedPawn->GetController());
+	APlayerController* PlayerController = Cast<APlayerController>(BaristaRef->GetController());
 	PlayerController->Possess(this);
 }
 
@@ -126,16 +126,21 @@ void AStation::SetInteractedPawn_Implementation(APawn* Pawn)
 {
 	IInteractable::SetInteractedPawn_Implementation(Pawn);
 	
-	InteractedPawn = Pawn;
+	BaristaRef = Cast<ABaristaCharacter>(Pawn);
+
+	IngredientArray.Add(EIngredient::CoffeeBeans);
 }
 
 bool AStation::DoesInputMatchIngredient()
 {
+	EIngredient MatchedIngredientKey = EIngredient::Water;
 	UIngredient* MatchedIngredient = nullptr;
 
 	/* Loop through this stations ingredients */
-	for (UIngredient* Ingredient : IngredientArray)
+	for (EIngredient Key : IngredientArray)
 	{
+		UIngredient* Ingredient = BaristaRef->GetInventory().GetIngredient(Key);
+		
 		/* Get pattern of ingredient */
 		TArray<EMakeKey> IngredientPattern = Ingredient->GetMakeKeyPattern();
 		
@@ -157,6 +162,7 @@ bool AStation::DoesInputMatchIngredient()
 		/* If input array loop finished with a perfect match then set MatchedIngredient */
 		if (Match)
 		{
+			MatchedIngredientKey = Key;
 			MatchedIngredient = Ingredient;
 			break;
 		}
@@ -167,20 +173,11 @@ bool AStation::DoesInputMatchIngredient()
 		/* Attempt to use matched ingredient */
 		EIngredientUseResult UseResult = MatchedIngredient->Use();
 		
-		switch (UseResult)
+		if (UseResult == EIngredientUseResult::Success)
 		{
-			/* If ingredient is stocked */
-		case EIngredientUseResult::Success:
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Turquoise, FString::Printf(TEXT("Stocked: %s"), *MatchedIngredient->GetIngredientName().ToString()));
-			break;
-			
-			/* If ingredient is not stocked */
-		case EIngredientUseResult::NoStock:
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, FString::Printf(TEXT("Out of stock: %s"), *MatchedIngredient->GetIngredientName().ToString()));
-			break;
+			BaristaRef->GetCurrentOrder().AddIngredientToTicket(MatchedIngredientKey);
 		}
 	}
-
 	return MatchedIngredient ? true : false;
 }
 

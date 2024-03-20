@@ -4,13 +4,53 @@
 
 #include "CoreMinimal.h"
 #include "Ingredient.h"
-#include "UObject/Object.h"
 #include "Order.generated.h"
 
-UCLASS()
-class CAFE_API UOrder : public UObject
+USTRUCT(BlueprintType)
+struct FOrder
 {
 	GENERATED_BODY()
 
-	void Test();
+private:
+	UPROPERTY()
+	TArray<EIngredient> TicketArray;
+	
+	UPROPERTY()
+	TArray<EIngredient> OrderArray;
+
+public:
+	FOrder() {}
+
+	FOrder(TArray<EIngredient> Ingredients)
+	{
+		OrderArray = Ingredients;
+	}
+
+	void AddIngredientToTicket(EIngredient Ingredient)
+	{
+		TicketArray.Add(Ingredient);
+	}
+
+	void ClearTicket()
+	{
+		TicketArray.Empty();
+	}
+	
+	bool IsFulfilled()
+	{
+		if (TicketArray.Num() != OrderArray.Num()) return false;
+
+		bool Fulfilled = true;
+		
+		for (int i = 0; i < TicketArray.Num(); i++)
+		{
+			if (TicketArray[i] != OrderArray[i])
+			{
+				Fulfilled = false;
+				break;
+			}
+		}
+		
+		return Fulfilled;
+	}
 };

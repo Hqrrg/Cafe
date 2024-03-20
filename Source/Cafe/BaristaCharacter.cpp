@@ -3,10 +3,13 @@
 
 #include "BaristaCharacter.h"
 
+#include "CafeGameModeBase.h"
 #include "CharacterNavigationBox.h"
+#include "CustomerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Interactable.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -35,6 +38,10 @@ void ABaristaCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Inventory = new FInventory();
+
+	GameModeRef = Cast<ACafeGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	GameModeRef->OnCustomerBeginOrder.AddDynamic(this, &ABaristaCharacter::CustomerBeginOrder);
 }
 
 void ABaristaCharacter::Tick(float DeltaSeconds)
@@ -283,6 +290,13 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 			}
 		}
 	}
+}
+
+void ABaristaCharacter::CustomerBeginOrder(ACustomerCharacter* OrderingCustomer)
+{
+	CurrentOrder = &OrderingCustomer->GetOrder();
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Cyan, FString::Printf(TEXT("%s"), CurrentOrder->IsFulfilled() ? TEXT("true") : TEXT("false")));
 }
 
 /* Return true if line trace hits an actor and set by reference */

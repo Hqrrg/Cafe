@@ -5,6 +5,7 @@
 
 #include "CafeGameModeBase.h"
 #include "CustomerAIController.h"
+#include "Ingredient.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 
@@ -246,7 +247,7 @@ void ACustomerCharacter::ApplyModifiers()
 			MaxTipMultiplier = 2;
 			break;
 		case ECustomerModifier::Snob:
-			OrderLength = FVector2D(5, 7);
+			OrderLength = FMath::RandRange(5, 7);
 			break;
 
 		case ECustomerModifier::RushingGrumpy:
@@ -259,7 +260,7 @@ void ACustomerCharacter::ApplyModifiers()
 			break;
 		case ECustomerModifier::RushingSnob:
 			OrderTimerDuration = 20.0f;
-			OrderLength = FVector2D(5, 7);
+			OrderLength = FMath::RandRange(5, 7);
 			break;
 		case ECustomerModifier::GrumpyGenerous:
 			ToleratedAttempts = 1;
@@ -267,11 +268,11 @@ void ACustomerCharacter::ApplyModifiers()
 			break;
 		case ECustomerModifier::GrumpySnob:
 			ToleratedAttempts = 1;
-			OrderLength = FVector2D(5, 7);
+			OrderLength = FMath::RandRange(5, 7);
 			break;
 		case ECustomerModifier::GenerousSnob:
 			MaxTipMultiplier = 2;
-			OrderLength = FVector2D(5, 7);
+			OrderLength = FMath::RandRange(5, 7);
 			break;
 	default:
 		break;
@@ -280,9 +281,34 @@ void ACustomerCharacter::ApplyModifiers()
 
 void ACustomerCharacter::GenerateOrder()
 {
-	//for (int i = 0; i <= OrderLength; i++)
-	// Ingredient* Ingredient = new Ingredient()
-	// Order.add(Ingredient);
+	TArray<EIngredient> Ingredients;
+
+	Ingredients.Add(EIngredient::Water);
+	Ingredients.Add(EIngredient::CoffeeBeans);
+	Ingredients.Add(EIngredient::Milk);
+	Ingredients.Add(EIngredient::AlmondMilk);
+	Ingredients.Add(EIngredient::SoyMilk);
+	Ingredients.Add(EIngredient::CaramelSyrup);
+	Ingredients.Add(EIngredient::HazelnutSyrup);
+	Ingredients.Add(EIngredient::GingerbreadSyrup);
+	
+	TArray<EIngredient> OrderIngredients;
+
+	OrderIngredients.Add(EIngredient::Water);
+	OrderIngredients.Add(EIngredient::CoffeeBeans);
+	
+	for (int i = 0; i < OrderLength - 2; i++)
+	{
+		const uint32 IngredientIndex = FMath::RandRange(0, Ingredients.Num()-1);
+		
+		EIngredient Ingredient = Ingredients[IngredientIndex];
+
+		OrderIngredients.Add(Ingredient);
+	}
+	
+	OrderIngredients.Sort([](const EIngredient A, const EIngredient B) { return A < B; });
+
+	Order = new FOrder(OrderIngredients);
 }
 
 void ACustomerCharacter::MakeOrder()

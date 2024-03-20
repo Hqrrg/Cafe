@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
+#include "Order.h"
 #include "Engine/DataTable.h"
 #include "CustomerCharacter.generated.h"
+
 
 /* Bitflag Enum: more info https://www.youtube.com/watch?v=TuHFeS_eBe8 */
 UENUM(NotBlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
@@ -92,6 +94,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetQueuePointIndex(int32 Index) { QueuePointIndex = Index; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FOrder& GetOrder() { return *Order; }
+
 	/* Called when the customer is at the front of the queue */
 	UFUNCTION(BlueprintCallable)
 	void MakeOrder();
@@ -106,8 +111,7 @@ private:
 	
 	ECustomerModifier Modifier = ECustomerModifier::Normal;
 
-	UPROPERTY()
-	class UOrder* Order = nullptr;
+	FOrder* Order;
 	
 	int32 QueuePointIndex = 0;
 	
@@ -118,7 +122,7 @@ private:
 	float MaxTipAmount = 100.0f;
 	int32 MaxTipMultiplier = 1;
 	int32 ToleratedAttempts = 3;
-	FVector2D OrderLength = FVector2D(3, 5);
+	int32 OrderLength = FMath::RandRange(3, 5);
 
 	/* Data Tables & Structs */
 	UPROPERTY()

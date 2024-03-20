@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Ingredient.h"
 #include "InputActionValue.h"
 #include "Interactable.h"
 #include "GameFramework/Pawn.h"
@@ -73,11 +74,11 @@ protected:
 protected:
 	/* Array for station's ingredients to be stored in */
 	UPROPERTY()
-	TArray<class UIngredient*> IngredientArray;
+	TArray<EIngredient> IngredientArray;
 
-	/* Pawn that interacts with the station */
+	/* Barista reference, set when interacting */
 	UPROPERTY()
-	APawn* InteractedPawn;
+	class ABaristaCharacter* BaristaRef;
 
 	/* Array of inputs */
 	UPROPERTY()

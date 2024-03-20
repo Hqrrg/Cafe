@@ -6,6 +6,7 @@
 #include "CafeCharacter.h"
 #include "Ingredient.h"
 #include "InputActionValue.h"
+#include "Order.h"
 #include "Engine/DataTable.h"
 #include "BaristaCharacter.generated.h"
 
@@ -15,6 +16,7 @@ struct FInventory
 {
 	GENERATED_BODY()
 
+public:
 	FInventory()
 	{
 		UIngredient* Water = NewObject<UIngredient>(); Water->Setup(FName("Water"));
@@ -82,6 +84,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	virtual void UpdateFlipbook() override;
+	
 protected:
 	/* Movement input logic */
 	void Move(const FInputActionValue& Value);
@@ -98,10 +101,23 @@ public:
 	class ACharacterNavigationBox* NavigationBox;
 
 public:
-	FORCEINLINE FInventory* GetInventory() { return Inventory; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FInventory& GetInventory() { return *Inventory; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FOrder& GetCurrentOrder() { return *CurrentOrder; }
+
+private:
+	UFUNCTION()
+	void CustomerBeginOrder(class ACustomerCharacter* OrderingCustomer);
 	
 private:
+	UPROPERTY()
+	class ACafeGameModeBase* GameModeRef = nullptr;
+	
 	FInventory* Inventory;
+
+	FOrder* CurrentOrder;
 	
 	/* Return true if line trace hits an actor and set by reference */
 	bool LineTraceFromMousePosition(FHitResult& HitResult);

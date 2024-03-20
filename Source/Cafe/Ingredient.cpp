@@ -3,6 +3,8 @@
 
 #include "Ingredient.h"
 
+#include "Kismet/KismetStringLibrary.h"
+
 UIngredient::UIngredient()
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> IngredientDataTableAsset(TEXT("/Game/Cafe/DataTables/DT_IngredientInfo.DT_IngredientInfo"));
@@ -30,7 +32,7 @@ UIngredient* UIngredient::Setup(FName Name)
 	if (IngredientDataTable)
 	{
 		static const FString ContextString(TEXT("Ingredient Info Context"));
-		IngredientInfo = IngredientDataTable->FindRow<FIngredientInfo>(Name.ToString().Replace(TEXT(" "), TEXT("_")), ContextString, true);
+		IngredientInfo = IngredientDataTable->FindRow<FIngredientInfo>(*UKismetStringLibrary::Replace(Name.ToString(), TEXT(" "), TEXT("")), ContextString, true);
 	}
 
 	if (IngredientInfo)
