@@ -33,6 +33,8 @@ ABaristaCharacter::ABaristaCharacter()
 void ABaristaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Inventory = new FInventory();
 }
 
 void ABaristaCharacter::Tick(float DeltaSeconds)

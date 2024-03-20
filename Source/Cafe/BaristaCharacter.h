@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
+#include "Ingredient.h"
 #include "InputActionValue.h"
 #include "Engine/DataTable.h"
 #include "BaristaCharacter.generated.h"
@@ -14,9 +15,36 @@ struct FInventory
 {
 	GENERATED_BODY()
 
-	TMap<FString, int32> IngredientMap;
+	FInventory()
+	{
+		UIngredient* Water = NewObject<UIngredient>(); Water->Setup(FName("Water"));
+		UIngredient* CoffeeBeans = NewObject<UIngredient>(); CoffeeBeans->Setup(FName("Coffee Beans"));
+		UIngredient* Milk = NewObject<UIngredient>(); Milk->Setup(FName("Milk"));
+		UIngredient* SoyMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Soy Milk"));
+		UIngredient* AlmondMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Almond Milk"));
+		UIngredient* CaramelSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Caramel Syrup"));
+		UIngredient* HazelnutSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Hazelnut Syrup"));
+		UIngredient* GingerbreadSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Gingerbread Syrup"));
 
-	bool HasIngredient() { return true; }
+		Ingredients.Add(EIngredient::Water, Water);
+		Ingredients.Add(EIngredient::CoffeeBeans, CoffeeBeans);
+		Ingredients.Add(EIngredient::Milk, Milk);
+		Ingredients.Add(EIngredient::SoyMilk, SoyMilk);
+		Ingredients.Add(EIngredient::AlmondMilk, AlmondMilk);
+		Ingredients.Add(EIngredient::CaramelSyrup, CaramelSyrup);
+		Ingredients.Add(EIngredient::HazelnutSyrup, HazelnutSyrup);
+		Ingredients.Add(EIngredient::GingerbreadSyrup, GingerbreadSyrup);	
+	}
+	
+public:
+	UIngredient* GetIngredient(EIngredient Key)
+	{
+		return *Ingredients.Find(Key);
+	}
+	
+private:
+	UPROPERTY()
+	TMap<EIngredient, UIngredient*> Ingredients;
 };
 
 UCLASS()
@@ -69,7 +97,12 @@ public:
 	UPROPERTY(EditInstanceOnly)
 	class ACharacterNavigationBox* NavigationBox;
 
+public:
+	FORCEINLINE FInventory* GetInventory() { return Inventory; }
+	
 private:
+	FInventory* Inventory;
+	
 	/* Return true if line trace hits an actor and set by reference */
 	bool LineTraceFromMousePosition(FHitResult& HitResult);
 

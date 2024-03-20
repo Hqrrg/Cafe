@@ -44,11 +44,39 @@ protected:
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 
 public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void BeginDay(float LengthSeconds);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void EndDay();
+	
+public:
 	UFUNCTION(BlueprintPure) /* Get the camera manager */
 	FORCEINLINE ACafeCameraManager* GetCameraManager() { return CameraManager; }
 
 	UFUNCTION(BlueprintPure) /* Get the queue manager */
 	FORCEINLINE ACafeQueueManager* GetQueueManager() { return QueueManager; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetTimeElapsed() { return TimeElapsed; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetTimeRemaining() { return TimeRemaining; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetTimeElapsed(float Value) { TimeElapsed = Value; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetTimeRemaining(float Value) { TimeRemaining = Value; }
+	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetDay() { return Day; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetBalance() { return Balance; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetQuota() { return Quota; }
 
 	UFUNCTION()
 	void RemoveCustomer(class ACustomerCharacter* Customer);
@@ -83,4 +111,19 @@ private:
 
 	/* TimerHandle for spawning customers */
 	FTimerHandle SpawnCustomerTimerHandle;
+
+	UPROPERTY()
+	float TimeElapsed = 0.0f;
+
+	UPROPERTY()
+	float TimeRemaining = 0.0f;
+	
+	UPROPERTY()
+	int32 Day = 1;
+
+	UPROPERTY()
+	float Balance = 0.0f;
+	
+	UPROPERTY()
+	float Quota;
 };

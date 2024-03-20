@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Ingredient.h"
 #include "UObject/Object.h"
 #include "Order.generated.h"
 
@@ -10,4 +11,6 @@ UCLASS()
 class CAFE_API UOrder : public UObject
 {
 	GENERATED_BODY()
+
+	void Test();
 };

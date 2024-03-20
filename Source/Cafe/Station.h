@@ -67,10 +67,19 @@ public:
 	/* Setter for InteractedPawn ~ _Impementation suffix because of BlueprintNativeEvent */
 	virtual void SetInteractedPawn_Implementation(APawn* Pawn) override;
 
-private:
+protected:
+	bool DoesInputMatchIngredient();
+
+protected:
+	/* Array for station's ingredients to be stored in */
+	UPROPERTY()
+	TArray<class UIngredient*> IngredientArray;
+
+	/* Pawn that interacts with the station */
 	UPROPERTY()
 	APawn* InteractedPawn;
 
+	/* Array of inputs */
 	UPROPERTY()
 	TArray<EMakeKey> InputArray;
 };

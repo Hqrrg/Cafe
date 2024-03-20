@@ -46,6 +46,8 @@ void ACafeGameModeBase::BeginPlay()
 
 		GetWorldTimerManager().SetTimer(SpawnCustomerTimerHandle, SpawnCustomerTimerDelegate, 5.0f, true);
 	}
+
+	BeginDay(5 * 60);
 }
 
 /* Updates the player's camera when they spawn */
@@ -74,6 +76,15 @@ UClass* ACafeGameModeBase::GetDefaultPawnClassForController_Implementation(ACont
 {
 	return nullptr;
 }
+
+void ACafeGameModeBase::BeginDay_Implementation(float LengthSeconds)
+{
+}
+
+void ACafeGameModeBase::EndDay_Implementation()
+{
+}
+
 
 /* Spawn a customer character */
 void ACafeGameModeBase::SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection)

@@ -89,16 +89,17 @@ void AStation::Make(const FInputActionValue& Value)
 
 	/* We can then add MakeKey to an array */
 	InputArray.Add(MakeKey);
-	// void CheckArray();
-	
-	/* Debug */
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Magenta, FString::Printf(TEXT("%i"), MakeKey));
-	
+
+	/* Clear input array if input matches ingredient pattern */
+	if (DoesInputMatchIngredient()) InputArray.Empty();
 }
 
 /* Exit input logic */
 void AStation::Exit(const FInputActionValue& Value)
 {
+	/* Reset inputs */
+	InputArray.Empty();
+	
 	/* Repossess InteractedPawn (Barista) */
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	PlayerController->Possess(InteractedPawn);
@@ -124,8 +125,62 @@ void AStation::Selected_Implementation(bool Is)
 void AStation::SetInteractedPawn_Implementation(APawn* Pawn)
 {
 	IInteractable::SetInteractedPawn_Implementation(Pawn);
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s"), *Pawn->GetName()));
+	
 	InteractedPawn = Pawn;
+}
+
+bool AStation::DoesInputMatchIngredient()
+{
+	UIngredient* MatchedIngredient = nullptr;
+
+	/* Loop through this stations ingredients */
+	for (UIngredient* Ingredient : IngredientArray)
+	{
+		/* Get pattern of ingredient */
+		TArray<EMakeKey> IngredientPattern = Ingredient->GetMakeKeyPattern();
+		
+		bool Match = true;
+
+		/* If the input array length does not equal the ingredient pattern length then continue to next iteration */
+		if (InputArray.Num() != IngredientPattern.Num()) continue;
+
+		/* Loop through each element in input array */
+		for (int i = 0; i < InputArray.Num(); i++)
+		{
+			/* Compare to ingredient pattern, if there's an inconsistency then break the loop */
+			if (InputArray[i] != IngredientPattern[i])
+			{
+				Match = false;
+				break;
+			}
+		}
+		/* If input array loop finished with a perfect match then set MatchedIngredient */
+		if (Match)
+		{
+			MatchedIngredient = Ingredient;
+			break;
+		}
+	}
+
+	if (MatchedIngredient)
+	{
+		/* Attempt to use matched ingredient */
+		EIngredientUseResult UseResult = MatchedIngredient->Use();
+		
+		switch (UseResult)
+		{
+			/* If ingredient is stocked */
+		case EIngredientUseResult::Success:
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Turquoise, FString::Printf(TEXT("Stocked: %s"), *MatchedIngredient->GetIngredientName().ToString()));
+			break;
+			
+			/* If ingredient is not stocked */
+		case EIngredientUseResult::NoStock:
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Orange, FString::Printf(TEXT("Out of stock: %s"), *MatchedIngredient->GetIngredientName().ToString()));
+			break;
+		}
+	}
+
+	return MatchedIngredient ? true : false;
 }
 
