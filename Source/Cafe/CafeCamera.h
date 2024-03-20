@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Camera/CameraComponent.h"
+#include "CineCameraComponent.h"
 #include "GameFramework/Actor.h"
 #include "CafeCamera.generated.h"
 
@@ -14,7 +14,7 @@ class CAFE_API ACafeCamera : public AActor
 
 	/* Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* CameraComponent;
+	UCineCameraComponent* CameraComponent;
 
 public:
 	// Sets default values for this actor's properties

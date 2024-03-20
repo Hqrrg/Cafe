@@ -8,7 +8,7 @@ public class Cafe : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Paper2D", "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Paper2D", "AIModule", "CinematicCamera" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput" });
 

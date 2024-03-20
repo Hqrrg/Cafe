@@ -295,8 +295,6 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 void ABaristaCharacter::CustomerBeginOrder(ACustomerCharacter* OrderingCustomer)
 {
 	CurrentOrder = &OrderingCustomer->GetOrder();
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Cyan, FString::Printf(TEXT("%s"), CurrentOrder->IsFulfilled() ? TEXT("true") : TEXT("false")));
 }
 
 /* Return true if line trace hits an actor and set by reference */
