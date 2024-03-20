@@ -3,22 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Ingredient.h"
 #include "InputActionValue.h"
 #include "Interactable.h"
 #include "GameFramework/Pawn.h"
 #include "Station.generated.h"
 
-/* Enum for make inputs */
-UENUM(BlueprintType)
-enum class EMakeKey : uint8
-{
-	None = 0,
-	Up = 1,
-	Down = 2,
-	Left = 3,
-	Right = 4
-};
+enum class EIngredient : uint8;
+enum class EMakeKey: uint8;
 
 UCLASS()
 class CAFE_API AStation : public APawn, public IInteractable

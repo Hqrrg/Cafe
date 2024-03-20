@@ -46,7 +46,7 @@ public:
 	
 private:
 	UPROPERTY()
-	TMap<EIngredient, UIngredient*> Ingredients;
+	TMap<EIngredient, UIngredient*> Ingredients = TMap<EIngredient, UIngredient*>();
 };
 
 UCLASS()

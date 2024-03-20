@@ -90,7 +90,7 @@ private:
 	FName IngredientName;
 
 	UPROPERTY()
-	UDataTable* IngredientDataTable = nullptr;
+	class UDataTable* IngredientDataTable = nullptr;
 	
 	FIngredientInfo* IngredientInfo;
 	
