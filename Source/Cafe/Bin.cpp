@@ -3,6 +3,8 @@
 
 #include "Bin.h"
 
+#include "BaristaCharacter.h"
+
 // Sets default values
 ABin::ABin()
 {
@@ -11,8 +13,20 @@ ABin::ABin()
 
 }
 
-void ABin::Interact_Implementation() {
-	
-	ClearTicket();
+void ABin::Interact_Implementation()
+{
+	IInteractable::Interact_Implementation();
+
+	if (UOrder* CurrentOrder = BaristaRef->GetCurrentOrder())
+	{
+		CurrentOrder->ClearTicket();
+	}
+}
+
+void ABin::SetInteractedPawn_Implementation(APawn* Pawn)
+{
+	IInteractable::SetInteractedPawn_Implementation(Pawn);
+
+	BaristaRef = Cast<ABaristaCharacter>(Pawn);
 }
 

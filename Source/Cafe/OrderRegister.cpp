@@ -3,6 +3,9 @@
 
 #include "OrderRegister.h"
 
+#include "BaristaCharacter.h"
+#include "CustomerCharacter.h"
+
 // Sets default values
 AOrderRegister::AOrderRegister()
 {
@@ -11,7 +14,23 @@ AOrderRegister::AOrderRegister()
 
 }
 
-void AOrderRegister::Interact_Implementation() {
+void AOrderRegister::Interact_Implementation()
+{
+	IInteractable::Interact_Implementation();
 
-	IsFulfilled();
+	if (BaristaRef->GetCurrentOrder()->IsFulfilled())
+	{
+		BaristaRef->GetCurrentCustomerRef()->ConcludeOrder();
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString("Order not complete"));
+	}
+}
+
+void AOrderRegister::SetInteractedPawn_Implementation(APawn* Pawn)
+{
+	IInteractable::SetInteractedPawn_Implementation(Pawn);
+
+	BaristaRef = Cast<ABaristaCharacter>(Pawn);
 }

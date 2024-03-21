@@ -17,8 +17,6 @@ void ACoffeeStation::SetInteractedPawn_Implementation(APawn* Pawn) {
 
 	Super::SetInteractedPawn_Implementation(Pawn);
 
-	FInventory* BaristaInventory = &BaristaRef->GetInventory();
-
 	IngredientArray.Add(EIngredient::Water);
 	IngredientArray.Add(EIngredient::CoffeeBeans);
 }

@@ -5,11 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interactable.h"
-#include "Order.h"
 #include "OrderRegister.generated.h"
 
 UCLASS()
-class CAFE_API AOrderRegister : public AActor, public IInteractable, public FOrder
+class CAFE_API AOrderRegister : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	
@@ -18,8 +17,12 @@ public:
 	AOrderRegister();
 
 protected:
-	void Interact_Implementation();
+	virtual void Interact_Implementation() override;
 
-public:	
+	virtual void SetInteractedPawn_Implementation(APawn* Pawn) override;
+
+private:
+	UPROPERTY()
+	class ABaristaCharacter* BaristaRef = nullptr;
 
 };
