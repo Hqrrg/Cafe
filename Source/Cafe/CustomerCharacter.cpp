@@ -317,6 +317,8 @@ void ACustomerCharacter::MakeOrder()
 	if (!GameModeRef) return;
 	
 	GameModeRef->OnCustomerBeginOrder.Broadcast(this);
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString("Hello"));
 	
 	GetWorldTimerManager().SetTimer(OrderTimerHandle, this, &ACustomerCharacter::ConcludeOrder, OrderTimerDuration, true);
 }
