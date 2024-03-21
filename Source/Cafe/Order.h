@@ -34,6 +34,7 @@ public:
 	void ClearTicket()
 	{
 		TicketArray.Empty();
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Screen Message"));
 	}
 	
 	bool IsFulfilled()
