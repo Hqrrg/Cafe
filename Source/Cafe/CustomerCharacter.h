@@ -95,7 +95,7 @@ public:
 	FORCEINLINE void SetQueuePointIndex(int32 Index) { QueuePointIndex = Index; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE FOrder& GetOrder() { return *Order; }
+	FORCEINLINE UOrder* GetOrder() { return Order; }
 
 	/* Called when the customer is at the front of the queue */
 	UFUNCTION(BlueprintCallable)
@@ -111,7 +111,8 @@ private:
 	
 	ECustomerModifier Modifier = ECustomerModifier::Normal;
 
-	FOrder* Order;
+	UPROPERTY()
+	UOrder* Order = nullptr;
 	
 	int32 QueuePointIndex = 0;
 	

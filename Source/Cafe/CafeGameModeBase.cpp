@@ -5,6 +5,7 @@
 
 #include "CafeCharacter.h"
 #include "BaristaPlayerController.h"
+#include "CafeGameInstance.h"
 #include "CustomerCharacter.h"
 #include "CustomerPlayerStart.h"
 #include "Kismet/GameplayStatics.h"
@@ -47,7 +48,7 @@ void ACafeGameModeBase::BeginPlay()
 		GetWorldTimerManager().SetTimer(SpawnCustomerTimerHandle, SpawnCustomerTimerDelegate, 5.0f, true);
 	}
 
-	BeginDay(5 * 60);
+	OnCustomerEndOrder.AddDynamic(this, &ACafeGameModeBase::AddBalance);
 }
 
 /* Updates the player's camera when they spawn */
@@ -79,10 +80,23 @@ UClass* ACafeGameModeBase::GetDefaultPawnClassForController_Implementation(ACont
 
 void ACafeGameModeBase::BeginDay_Implementation(float LengthSeconds)
 {
+	UCafeGameInstance* GameInstanceRef = Cast<UCafeGameInstance>(GetGameInstance());
+	Day = GameInstanceRef->GetDay() + 1;
+	Balance = GameInstanceRef->GetBalance();
+	Quota = GameInstanceRef->GetProfitQuota() + 100.0f;
 }
 
-void ACafeGameModeBase::EndDay_Implementation()
+void ACafeGameModeBase::EndDay_Implementation(bool DidMeetQuota)
 {
+	UCafeGameInstance* GameInstanceRef = Cast<UCafeGameInstance>(GetGameInstance());
+	ABaristaCharacter* Barista = GetBaristaRef();
+
+	UInventory* BaristaInventory = Barista->GetInventory();
+	GameInstanceRef->SetBaristaInventory(BaristaInventory);
+
+	GameInstanceRef->SetDay(GetDay());
+	GameInstanceRef->SetBalance(GetBalance());
+	GameInstanceRef->SetProfitQuota(GetQuota());
 }
 
 
@@ -128,6 +142,12 @@ void ACafeGameModeBase::SpawnCustomer(FTransform SpawnTransform, EDirection Spaw
 
 	/* Add spawned customer to CustomerArray */
 	CustomerArray.Push(Customer);
+}
+
+void ACafeGameModeBase::AddBalance(ACustomerCharacter* Customer, float TipAmount, EOrderSatisfaction OrderSatisfaction)
+{
+	Balance += TipAmount;
+	OnUpdateBalance.Broadcast(Balance);
 }
 
 void ACafeGameModeBase::RemoveCustomer(ACustomerCharacter* Customer)

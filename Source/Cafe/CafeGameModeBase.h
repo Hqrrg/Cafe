@@ -22,7 +22,8 @@ enum ECustomerRarity : uint8
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerOrdered, class ACustomerCharacter*, Customer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerLeft, class ACustomerCharacter*, Customer);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, EOrderSatisfaction, OrderSatisfaction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, float, TipAmount, EOrderSatisfaction, OrderSatisfaction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpdateBalance, float, NewBalance);
 
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
@@ -48,7 +49,7 @@ public:
 	void BeginDay(float LengthSeconds);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void EndDay();
+	void EndDay(bool DidMeetQuota);
 	
 public:
 	UFUNCTION(BlueprintPure) /* Get the camera manager */
@@ -56,6 +57,11 @@ public:
 
 	UFUNCTION(BlueprintPure) /* Get the queue manager */
 	FORCEINLINE ACafeQueueManager* GetQueueManager() { return QueueManager; }
+
+	FORCEINLINE void SetBaristaRef(class ABaristaCharacter* Barista) { BaristaRef = Barista; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE class ABaristaCharacter* GetBaristaRef() { return BaristaRef; }
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetTimeElapsed() { return TimeElapsed; }
@@ -73,10 +79,10 @@ public:
 	FORCEINLINE int32 GetDay() { return Day; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GetBalance() { return Balance; }
+	FORCEINLINE float GetBalance() { return Balance; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GetQuota() { return Quota; }
+	FORCEINLINE float GetQuota() { return Quota; }
 
 	UFUNCTION()
 	void RemoveCustomer(class ACustomerCharacter* Customer);
@@ -84,6 +90,9 @@ public:
 private:
 	UFUNCTION() /* Spawn a customer character */
 	void SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection);
+
+	UFUNCTION()
+	void AddBalance(class ACustomerCharacter* Customer, float TipAmount, EOrderSatisfaction OrderSatisfaction);
 
 public:
 	/* Default map of customer names with an associated customer rarity */
@@ -97,6 +106,10 @@ public:
 	/* Customer MakeOrder Concluded Event Dispatcher */
 	UPROPERTY(BlueprintAssignable)
 	FCustomerOrderConcluded OnCustomerEndOrder;
+
+	/* Balance Updated Event Dispatcher */
+	UPROPERTY(BlueprintAssignable)
+	FUpdateBalance OnUpdateBalance;
 	
 	
 private:
@@ -105,6 +118,9 @@ private:
 
 	UPROPERTY() /* Queue Manager */
 	ACafeQueueManager* QueueManager = nullptr;
+
+	UPROPERTY()
+	class ABaristaCharacter* BaristaRef = nullptr;
 
 	UPROPERTY() /* Customer Instance Array */
 	TArray<class ACustomerCharacter*> CustomerArray;
@@ -119,11 +135,11 @@ private:
 	float TimeRemaining = 0.0f;
 	
 	UPROPERTY()
-	int32 Day = 1;
+	int32 Day = 0;
 
 	UPROPERTY()
 	float Balance = 0.0f;
 	
 	UPROPERTY()
-	float Quota;
+	float Quota = 0.0f;
 };

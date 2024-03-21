@@ -71,6 +71,9 @@ public:
 	FORCEINLINE TArray<EMakeKey> GetMakeKeyPattern() { return MakeKeyPattern; }
 
 	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetPrice() { return Price; }
+
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE FName GetIngredientName() { return IngredientName; }
 
 private:

@@ -4,50 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "CafeCharacter.h"
-#include "Ingredient.h"
 #include "InputActionValue.h"
+#include "Inventory.h"
 #include "Order.h"
 #include "Engine/DataTable.h"
 #include "BaristaCharacter.generated.h"
-
-
-USTRUCT(BlueprintType)
-struct FInventory
-{
-	GENERATED_BODY()
-
-public:
-	FInventory()
-	{
-		UIngredient* Water = NewObject<UIngredient>(); Water->Setup(FName("Water"));
-		UIngredient* CoffeeBeans = NewObject<UIngredient>(); CoffeeBeans->Setup(FName("Coffee Beans"));
-		UIngredient* Milk = NewObject<UIngredient>(); Milk->Setup(FName("Milk"));
-		UIngredient* SoyMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Soy Milk"));
-		UIngredient* AlmondMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Almond Milk"));
-		UIngredient* CaramelSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Caramel Syrup"));
-		UIngredient* HazelnutSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Hazelnut Syrup"));
-		UIngredient* GingerbreadSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Gingerbread Syrup"));
-
-		Ingredients.Add(EIngredient::Water, Water);
-		Ingredients.Add(EIngredient::CoffeeBeans, CoffeeBeans);
-		Ingredients.Add(EIngredient::Milk, Milk);
-		Ingredients.Add(EIngredient::SoyMilk, SoyMilk);
-		Ingredients.Add(EIngredient::AlmondMilk, AlmondMilk);
-		Ingredients.Add(EIngredient::CaramelSyrup, CaramelSyrup);
-		Ingredients.Add(EIngredient::HazelnutSyrup, HazelnutSyrup);
-		Ingredients.Add(EIngredient::GingerbreadSyrup, GingerbreadSyrup);	
-	}
-	
-public:
-	UIngredient* GetIngredient(EIngredient Key)
-	{
-		return *Ingredients.Find(Key);
-	}
-	
-private:
-	UPROPERTY()
-	TMap<EIngredient, UIngredient*> Ingredients = TMap<EIngredient, UIngredient*>();
-};
 
 UCLASS()
 class CAFE_API ABaristaCharacter : public ACafeCharacter
@@ -102,10 +63,15 @@ public:
 
 public:
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE FInventory& GetInventory() { return *Inventory; }
+	FORCEINLINE UInventory* GetInventory() { return Inventory; }
+
+	FORCEINLINE void SetInventory(UInventory* NewInventory) { Inventory = NewInventory;}
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE FOrder& GetCurrentOrder() { return *CurrentOrder; }
+	FORCEINLINE UOrder* GetCurrentOrder() { return CurrentOrder; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE class ACustomerCharacter* GetCurrentCustomerRef() { return CurrentCustomerRef; }
 
 private:
 	UFUNCTION()
@@ -114,10 +80,15 @@ private:
 private:
 	UPROPERTY()
 	class ACafeGameModeBase* GameModeRef = nullptr;
-	
-	FInventory* Inventory;
 
-	FOrder* CurrentOrder;
+	UPROPERTY()
+	class ACustomerCharacter* CurrentCustomerRef = nullptr;
+
+	UPROPERTY()
+	UInventory* Inventory = nullptr;
+
+	UPROPERTY()
+	UOrder* CurrentOrder = nullptr;
 	
 	/* Return true if line trace hits an actor and set by reference */
 	bool LineTraceFromMousePosition(FHitResult& HitResult);

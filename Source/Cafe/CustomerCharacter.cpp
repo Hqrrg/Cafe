@@ -199,6 +199,7 @@ void ACustomerCharacter::Setup(FString Name)
 
 	UpdateFlipbook();
 
+	
 	const float CAPSULE_BOUNDS_PADDING = 5.0f;
 	/* Scaling fix for disproportionate sprites */
 	for (float Scale = 1.0f; Scale > 0.0f; Scale-=0.01f)
@@ -208,7 +209,7 @@ void ACustomerCharacter::Setup(FString Name)
 
 		if (FlipbookBounds.Length() > CapsuleBounds.Length())
 		{
-			FlipbookComponent->SetRelativeScale3D(FVector(Scale, Scale, Scale * 1.414));	
+			FlipbookComponent->SetRelativeScale3D(FVector(Scale, Scale, Scale * 1.414f));	
 		}
 		else break;
 	}
@@ -308,7 +309,7 @@ void ACustomerCharacter::GenerateOrder()
 	
 	OrderIngredients.Sort([](const EIngredient A, const EIngredient B) { return A < B; });
 
-	Order = new FOrder(OrderIngredients);
+	Order = NewObject<UOrder>(); Order->Set(OrderIngredients);
 }
 
 void ACustomerCharacter::MakeOrder()
@@ -335,8 +336,6 @@ void ACustomerCharacter::ConcludeOrder()
 	
 	const float TipMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, OrderTimerDuration), FVector2D(MaxTipMultiplier, 0.0f), TimeElapsed);
 	const float TipAmount = MaxTipAmount * TipMultiplier;
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("TIP: £%f"), TipAmount));
 	
 	Destroy();
 	
@@ -363,6 +362,6 @@ void ACustomerCharacter::ConcludeOrder()
 		OrderSatisfaction = EOrderSatisfaction::VeryPoor;
 	}
 
-	GameModeRef->OnCustomerEndOrder.Broadcast(this, OrderSatisfaction);
+	GameModeRef->OnCustomerEndOrder.Broadcast(this, TipAmount, OrderSatisfaction);
 }
 

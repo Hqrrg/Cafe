@@ -19,7 +19,7 @@ ACafeCharacter::ACafeCharacter()
 	/* Configure flipbook component transform, taking into account vertical scale for the orthographic camera */
 	FlipbookComponent = GetSprite();
 	FlipbookComponent->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
-	FlipbookComponent->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.707f));
+	FlipbookComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.141f));
 }
 
 /* Update the flipbook of the flipbook component */

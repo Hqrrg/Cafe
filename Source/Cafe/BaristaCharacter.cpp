@@ -3,6 +3,7 @@
 
 #include "BaristaCharacter.h"
 
+#include "CafeGameInstance.h"
 #include "CafeGameModeBase.h"
 #include "CharacterNavigationBox.h"
 #include "CustomerCharacter.h"
@@ -37,10 +38,17 @@ void ABaristaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Inventory = new FInventory();
+	if (!Inventory)
+	{
+		Inventory = NewObject<UInventory>();
+	}
 
+	UCafeGameInstance* GameInstanceRef = Cast<UCafeGameInstance>(GetGameInstance());
+	UInventory* BaristaInventory = GameInstanceRef->GetBaristaInventory();
+	SetInventory(BaristaInventory);
+	
 	GameModeRef = Cast<ACafeGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-
+	GameModeRef->SetBaristaRef(this);
 	GameModeRef->OnCustomerBeginOrder.AddDynamic(this, &ABaristaCharacter::CustomerBeginOrder);
 }
 
@@ -294,7 +302,8 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 
 void ABaristaCharacter::CustomerBeginOrder(ACustomerCharacter* OrderingCustomer)
 {
-	CurrentOrder = &OrderingCustomer->GetOrder();
+	CurrentCustomerRef = OrderingCustomer;
+	CurrentOrder = OrderingCustomer->GetOrder();
 }
 
 /* Return true if line trace hits an actor and set by reference */
@@ -306,7 +315,7 @@ bool ABaristaCharacter::LineTraceFromMousePosition(FHitResult& HitResult)
 		float MouseX, MouseY; PlayerController->GetMousePosition(MouseX, MouseY);
 
 		/* Max length of the line trace */
-		const int32 MAX_TRACE_DIST = 5000;
+		const int32 MAX_TRACE_DIST = 10000;
 
 		/* Get camera info */
 		FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();

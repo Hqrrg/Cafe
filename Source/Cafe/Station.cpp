@@ -141,7 +141,7 @@ bool AStation::DoesInputMatchIngredient()
 	/* Loop through this stations ingredients */
 	for (EIngredient Key : IngredientArray)
 	{
-		UIngredient* Ingredient = BaristaRef->GetInventory().GetIngredient(Key);
+		UIngredient* Ingredient = BaristaRef->GetInventory()->GetIngredient(Key);
 		
 		/* Get pattern of ingredient */
 		TArray<EMakeKey> IngredientPattern = Ingredient->GetMakeKeyPattern();
@@ -177,7 +177,7 @@ bool AStation::DoesInputMatchIngredient()
 		
 		if (UseResult == EIngredientUseResult::Success)
 		{
-			BaristaRef->GetCurrentOrder().AddIngredientToTicket(MatchedIngredientKey);
+			BaristaRef->GetCurrentOrder()->AddIngredientToTicket(MatchedIngredientKey);
 		}
 	}
 	return MatchedIngredient ? true : false;
