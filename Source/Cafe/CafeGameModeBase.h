@@ -24,6 +24,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerOrdered, class ACustomerCha
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerLeft, class ACustomerCharacter*, Customer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, float, TipAmount, EOrderSatisfaction, OrderSatisfaction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpdateBalance, float, NewBalance);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBeginDay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndDay);
 
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
@@ -37,6 +39,9 @@ public:
 protected:
 	/* Called when game starts */
 	virtual void BeginPlay() override;
+
+	/* Called every frame */
+	virtual void Tick(float DeltaSeconds) override;
 	
 	/* Called when spawning a player controller */
 	virtual APlayerController* SpawnPlayerController(ENetRole InRemoteRole, const FString& Options) override;
@@ -99,6 +104,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Customers")
 	TMap<FString, TEnumAsByte<ECustomerRarity>> DefaultCustomerMap;
 
+	UPROPERTY(BlueprintAssignable)
+	FBeginDay OnBeginDay;
+
+	UPROPERTY(BlueprintAssignable)
+	FEndDay OnEndDay;
+	
 	/* Customer Ordered Event Dispatcher */
 	UPROPERTY(BlueprintAssignable)
 	FCustomerOrdered OnCustomerBeginOrder;

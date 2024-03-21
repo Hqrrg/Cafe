@@ -27,12 +27,6 @@ void ACafeGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Assign queue manager to the first instance found */
-	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACafeQueueManager::StaticClass()))
-	{
-		QueueManager = Cast<ACafeQueueManager>(FoundActor);	
-	}
-
 	/* Find the first instance of customer player start */
 	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ACustomerPlayerStart::StaticClass()))
 	{
@@ -40,7 +34,7 @@ void ACafeGameModeBase::BeginPlay()
 		
 		FTransform SpawnTransform = CustomerPlayerStart->GetTransform();
 		EDirection SpawnDirection = CustomerPlayerStart->GetSpawnDirection();
-
+		
 		/* Initialise a timer that calls "SpawnCustomer" with the spawn transform and spawn direction properties of the customer player start*/
 		FTimerDelegate SpawnCustomerTimerDelegate;
 		SpawnCustomerTimerDelegate.BindUFunction(this, FName("SpawnCustomer"), SpawnTransform, SpawnDirection);
@@ -49,6 +43,15 @@ void ACafeGameModeBase::BeginPlay()
 	}
 
 	OnCustomerEndOrder.AddDynamic(this, &ACafeGameModeBase::AddBalance);
+}
+
+void ACafeGameModeBase::Tick(float DeltaSeconds)
+{
+	/* Assign queue manager to the first instance found */
+	if (!QueueManager)
+	{
+		QueueManager = Cast<ACafeQueueManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ACafeQueueManager::StaticClass()));
+	}
 }
 
 /* Updates the player's camera when they spawn */
@@ -84,6 +87,8 @@ void ACafeGameModeBase::BeginDay_Implementation(float LengthSeconds)
 	Day = GameInstanceRef->GetDay() + 1;
 	Balance = GameInstanceRef->GetBalance();
 	Quota = GameInstanceRef->GetProfitQuota() + 100.0f;
+
+	OnBeginDay.Broadcast();
 }
 
 void ACafeGameModeBase::EndDay_Implementation(bool DidMeetQuota)
@@ -97,12 +102,15 @@ void ACafeGameModeBase::EndDay_Implementation(bool DidMeetQuota)
 	GameInstanceRef->SetDay(GetDay());
 	GameInstanceRef->SetBalance(GetBalance());
 	GameInstanceRef->SetProfitQuota(GetQuota());
-}
 
+	OnEndDay.Broadcast();
+}
 
 /* Spawn a customer character */
 void ACafeGameModeBase::SpawnCustomer(FTransform SpawnTransform, EDirection SpawnDirection)
 {
+	if (!QueueManager) return;
+	
 	/* If there is no room in the queue, return */
 	if (CustomerArray.Num() >= GetQueueManager()->GetQueuePoints().Num()) return;
 	

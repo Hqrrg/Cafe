@@ -56,7 +56,7 @@ public:
 	
 public:
 	/* Array of queue points that comprise the queue */
-	UPROPERTY(EditInstanceOnly, Category = "Defaults", DisplayName = "Queue Points", meta = (MakeEditWidget = "true"))
+	UPROPERTY(EditInstanceOnly, Category = "Defaults", DisplayName = "Queue Points", meta = (AllowPrivateAccess = "true", MakeEditWidget= "true"))
 	TArray<FVector> QueuePointArray;
 
 	/* Array of custom queue point info struct that contains information relevant to each queue point in QueuePointArray*/

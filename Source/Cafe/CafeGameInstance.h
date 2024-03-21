@@ -34,7 +34,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetBalance() { return Balance; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetBalance(float Value) { Balance = Value; }
 	
 private:
@@ -42,6 +42,6 @@ private:
 	UInventory* BaristaInventory = NewObject<UInventory>();
 	
 	int32 Day = 0;
-	float Balance = 0.0f;
+	float Balance = 100.0f;
 	float ProfitQuota = 0.0f;
 };

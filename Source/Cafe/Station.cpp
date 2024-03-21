@@ -92,6 +92,8 @@ void AStation::Make(const FInputActionValue& Value)
 	/* We can then add MakeKey to an array */
 	InputArray.Add(MakeKey);
 
+	OnMakeInput.Broadcast(InputArray);
+
 	/* Clear input array if input matches ingredient pattern */
 	if (DoesInputMatchIngredient()) InputArray.Empty();
 }
@@ -178,6 +180,7 @@ bool AStation::DoesInputMatchIngredient()
 		if (UseResult == EIngredientUseResult::Success)
 		{
 			BaristaRef->GetCurrentOrder()->AddIngredientToTicket(MatchedIngredientKey);
+			OnIngredientMade(MatchedIngredientKey);
 		}
 	}
 	return MatchedIngredient ? true : false;

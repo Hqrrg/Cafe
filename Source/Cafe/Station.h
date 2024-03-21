@@ -11,6 +11,9 @@
 enum class EIngredient : uint8;
 enum class EMakeKey: uint8;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMakeInput, TArray<EMakeKey>, Inputs);
+
 UCLASS()
 class CAFE_API AStation : public APawn, public IInteractable
 {
@@ -58,6 +61,15 @@ public:
 
 	/* Setter for InteractedPawn ~ _Impementation suffix because of BlueprintNativeEvent */
 	virtual void SetInteractedPawn_Implementation(APawn* Pawn) override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnIngredientMade(EIngredient Ingredient);
+
+	UPROPERTY(BlueprintAssignable)
+	FMakeInput OnMakeInput;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class ABaristaCharacter* GetBaristaRef() { return BaristaRef; }
 
 protected:
 	bool DoesInputMatchIngredient();
