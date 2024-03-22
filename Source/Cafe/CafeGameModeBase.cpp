@@ -47,6 +47,8 @@ void ACafeGameModeBase::BeginPlay()
 
 void ACafeGameModeBase::Tick(float DeltaSeconds)
 {
+	Super::Tick(DeltaSeconds);
+	
 	/* Assign queue manager to the first instance found */
 	if (!QueueManager)
 	{
