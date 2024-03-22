@@ -32,7 +32,7 @@ UIngredient* UIngredient::Setup(FName Name)
 	if (IngredientDataTable)
 	{
 		static const FString ContextString(TEXT("Ingredient Info Context"));
-		IngredientInfo = IngredientDataTable->FindRow<FIngredientInfo>(*UKismetStringLibrary::Replace(Name.ToString(), TEXT(" "), TEXT("")), ContextString, true);
+		IngredientInfo = IngredientDataTable->FindRow<FIngredientInfo>(FName(UKismetStringLibrary::Replace(Name.ToString(), TEXT(" "), TEXT(""))), ContextString, true);
 	}
 
 	if (IngredientInfo)

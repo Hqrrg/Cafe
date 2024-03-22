@@ -11,10 +11,10 @@ UInventory::UInventory()
 	UIngredient* CoffeeBeans = NewObject<UIngredient>(); CoffeeBeans->Setup(FName("Coffee Beans"));
 	UIngredient* Milk = NewObject<UIngredient>(); Milk->Setup(FName("Milk"));
 	UIngredient* SoyMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Soy Milk"));
-	UIngredient* AlmondMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Almond Milk"));
-	UIngredient* CaramelSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Caramel Syrup"));
-	UIngredient* HazelnutSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Hazelnut Syrup"));
-	UIngredient* GingerbreadSyrup = NewObject<UIngredient>(); SoyMilk->Setup(FName("Gingerbread Syrup"));
+	UIngredient* AlmondMilk = NewObject<UIngredient>(); AlmondMilk->Setup(FName("Almond Milk"));
+	UIngredient* CaramelSyrup = NewObject<UIngredient>(); CaramelSyrup->Setup(FName("Caramel Syrup"));
+	UIngredient* HazelnutSyrup = NewObject<UIngredient>(); HazelnutSyrup->Setup(FName("Hazelnut Syrup"));
+	UIngredient* GingerbreadSyrup = NewObject<UIngredient>(); GingerbreadSyrup->Setup(FName("Gingerbread Syrup"));
 
 	Ingredients.Add(EIngredient::Water, Water);
 	Ingredients.Add(EIngredient::CoffeeBeans, CoffeeBeans);
