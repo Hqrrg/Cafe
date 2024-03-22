@@ -18,13 +18,16 @@ void AOrderRegister::Interact_Implementation()
 {
 	IInteractable::Interact_Implementation();
 
-	if (BaristaRef->GetCurrentOrder()->IsFulfilled())
+	if (BaristaRef->GetCurrentOrder())
 	{
-		BaristaRef->GetCurrentCustomerRef()->ConcludeOrder();
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString("Order not complete"));
+		if (BaristaRef->GetCurrentOrder()->IsFulfilled())
+		{
+			BaristaRef->GetCurrentCustomerRef()->ConcludeOrder();
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString("Order not complete"));
+		}
 	}
 }
 
@@ -33,4 +36,9 @@ void AOrderRegister::SetInteractedPawn_Implementation(APawn* Pawn)
 	IInteractable::SetInteractedPawn_Implementation(Pawn);
 
 	BaristaRef = Cast<ABaristaCharacter>(Pawn);
+}
+
+bool AOrderRegister::ShouldBeNextTo_Implementation()
+{
+	return true;
 }

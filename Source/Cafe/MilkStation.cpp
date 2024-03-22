@@ -18,6 +18,8 @@ void AMilkStation::SetInteractedPawn_Implementation(APawn* Pawn)
 
 	Super::SetInteractedPawn_Implementation(Pawn);
 
+	IngredientArray.Empty();
+	
 	IngredientArray.Add(EIngredient::Milk);
 	IngredientArray.Add(EIngredient::SoyMilk);
 	IngredientArray.Add(EIngredient::AlmondMilk);

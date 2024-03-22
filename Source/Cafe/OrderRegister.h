@@ -21,6 +21,8 @@ protected:
 
 	virtual void SetInteractedPawn_Implementation(APawn* Pawn) override;
 
+	virtual bool ShouldBeNextTo_Implementation() override;
+
 private:
 	UPROPERTY()
 	class ABaristaCharacter* BaristaRef = nullptr;

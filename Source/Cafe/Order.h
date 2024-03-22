@@ -7,6 +7,8 @@
 #include "UObject/Object.h"
 #include "Order.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTicketUpdated, UPARAM(ref) TArray<EIngredient>,  Ingredients);
+
 UCLASS()
 class CAFE_API UOrder : public UObject
 {
@@ -18,9 +20,9 @@ public:
 public:
 	FORCEINLINE void Set(TArray<EIngredient> Ingredients) { OrderArray = Ingredients; }
 
-	FORCEINLINE void AddIngredientToTicket(EIngredient Ingredient) { TicketArray.Add(Ingredient); }
+	void AddIngredientToTicket(EIngredient Ingredient);
 
-	FORCEINLINE void ClearTicket() { TicketArray.Empty(); }
+	void ClearTicket();
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsFulfilled();
@@ -30,6 +32,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE TArray<EIngredient> GetOrderArray() { return OrderArray; }
+
+	UPROPERTY(BlueprintAssignable)
+	FTicketUpdated OnTicketUpdated;
 	
 private:
 	UPROPERTY()

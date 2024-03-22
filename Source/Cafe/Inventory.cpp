@@ -7,7 +7,7 @@
 
 UInventory::UInventory()
 {
-	UIngredient* Water = NewObject<UIngredient>(); Water->Setup(FName("Water"));
+	UIngredient* Water = NewObject<UIngredient>(); Water->Setup(FName("Water")); Water->SetQuantity(-1);
 	UIngredient* CoffeeBeans = NewObject<UIngredient>(); CoffeeBeans->Setup(FName("Coffee Beans"));
 	UIngredient* Milk = NewObject<UIngredient>(); Milk->Setup(FName("Milk"));
 	UIngredient* SoyMilk = NewObject<UIngredient>(); SoyMilk->Setup(FName("Soy Milk"));

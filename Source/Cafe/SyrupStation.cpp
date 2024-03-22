@@ -16,6 +16,8 @@ void ASyrupStation::SetInteractedPawn_Implementation(APawn* Pawn)
 {
 	Super::SetInteractedPawn_Implementation(Pawn);
 
+	IngredientArray.Empty();
+	
 	IngredientArray.Add(EIngredient::CaramelSyrup);
 	IngredientArray.Add(EIngredient::HazelnutSyrup);
 	IngredientArray.Add(EIngredient::GingerbreadSyrup);

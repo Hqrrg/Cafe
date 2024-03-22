@@ -8,6 +8,7 @@
 #include "Ingredient.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 
 
 /* Sets default values for this actors properties */
@@ -33,6 +34,19 @@ ACustomerCharacter::ACustomerCharacter()
 	{
 		CustomerModifierInfoDataTable = CustomerModifierInfoDataTableAsset.Object;
 	}
+
+	/* Find and assign customer widgets info data table */
+	static ConstructorHelpers::FObjectFinder<UDataTable> CustomerWidgetsDataTableAsset(TEXT("/Game/Cafe/DataTables/DT_CustomerWidgets.DT_CustomerWidgets"));
+	if (CustomerWidgetsDataTableAsset.Succeeded())
+	{
+		CustomerWidgetDataTable = CustomerWidgetsDataTableAsset.Object;
+	}
+
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetHiddenInGame(true);
+	WidgetComponent->SetDrawSize(FVector2D(50.0f, 50.0f));
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 /* Called when this actor is spawned */
@@ -94,6 +108,40 @@ void ACustomerCharacter::Tick(float DeltaSeconds)
 			}
 		}
 		UpdateFlipbook();
+	}
+
+	if (GetWorldTimerManager().IsTimerActive(OrderTimerHandle))
+	{
+		const float TimeElapsed = FMath::Clamp(GetWorldTimerManager().GetTimerElapsed(OrderTimerHandle), 0.0f, OrderTimerDuration);
+	
+		TipMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, OrderTimerDuration), FVector2D(MaxTipMultiplier, 0.0f), TimeElapsed);
+		TipAmount = MaxTipAmount * TipMultiplier;
+
+		if (TipMultiplier > MaxTipMultiplier * 0.6)
+		{
+			OrderSatisfaction = EOrderSatisfaction::Excellent;
+			WidgetComponent->SetWidgetClass(HappyWidget);
+		}
+		else if (TipMultiplier > MaxTipMultiplier * 0.4)
+		{
+			OrderSatisfaction = EOrderSatisfaction::VeryGood;
+			WidgetComponent->SetWidgetClass(NeutralWidget);
+		}
+		else if (TipMultiplier > MaxTipMultiplier * 0.2)
+		{
+			OrderSatisfaction = EOrderSatisfaction::Good;
+			WidgetComponent->SetWidgetClass(NeutralWidget);
+		}
+		else if (TipMultiplier > 0.0f)
+		{
+			OrderSatisfaction = EOrderSatisfaction::Poor;
+			WidgetComponent->SetWidgetClass(MadWidget);
+		}
+		else  if (TipMultiplier == 0.0f)
+		{
+			OrderSatisfaction = EOrderSatisfaction::VeryPoor;
+			WidgetComponent->SetWidgetClass(MadWidget);
+		}
 	}
 }
 
@@ -199,6 +247,9 @@ void ACustomerCharacter::Setup(FString Name)
 
 	UpdateFlipbook();
 
+	float WidgetLocationZ = GetCapsuleComponent()->Bounds.BoxExtent.Z + 50.0f;
+
+	WidgetComponent->SetRelativeLocation(FVector(WidgetComponent->GetRelativeLocation().X, WidgetComponent->GetRelativeLocation().Y, WidgetLocationZ));
 	
 	const float CAPSULE_BOUNDS_PADDING = 5.0f;
 	/* Scaling fix for disproportionate sprites */
@@ -226,6 +277,19 @@ void ACustomerCharacter::Setup(FString Name)
 	{
 		Modifier |= CustomerModifierInfo->FirstModifier;
 		Modifier |= CustomerModifierInfo->SecondModifier;
+	}
+
+	if (CustomerWidgetDataTable)
+	{
+		static const FString ContextString(TEXT("Customer Widgets Context"));
+		CustomerWidgets = CustomerWidgetDataTable->FindRow<FCustomerWidgets>(FName("Default"), ContextString, true);
+	}
+
+	if (CustomerWidgets)
+	{
+		HappyWidget = CustomerWidgets->HappyWidget;
+		NeutralWidget = CustomerWidgets->NeutralWidget;
+		MadWidget = CustomerWidgets->MadWidget;
 	}
 
 	ApplyModifiers();
@@ -318,48 +382,45 @@ void ACustomerCharacter::MakeOrder()
 	
 	GameModeRef->OnCustomerBeginOrder.Broadcast(this);
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString("Hello"));
-	
+	WidgetComponent->SetHiddenInGame(false);
 	GetWorldTimerManager().SetTimer(OrderTimerHandle, this, &ACustomerCharacter::ConcludeOrder, OrderTimerDuration, true);
 }
 
 void ACustomerCharacter::ConcludeOrder()
 {
-	EOrderSatisfaction OrderSatisfaction = EOrderSatisfaction::Good;
-	
 	FTimerManager& TimerManager = GetWorldTimerManager();
 	
 	if (TimerManager.TimerExists(OrderTimerHandle))
 	{
 		TimerManager.PauseTimer(OrderTimerHandle);
 	}
-	
-	const float TimeElapsed = FMath::Clamp(TimerManager.GetTimerElapsed(OrderTimerHandle), 0.0f, OrderTimerDuration);
-	
-	const float TipMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, OrderTimerDuration), FVector2D(MaxTipMultiplier, 0.0f), TimeElapsed);
-	const float TipAmount = MaxTipAmount * TipMultiplier;
-	
+		
 	Destroy();
 	
 	GameModeRef->RemoveCustomer(this);
 
-	if (TipMultiplier > MaxTipMultiplier * 0.8)
+	const float TimeElapsed = FMath::Clamp(GetWorldTimerManager().GetTimerElapsed(OrderTimerHandle), 0.0f, OrderTimerDuration);
+	
+	TipMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, OrderTimerDuration), FVector2D(MaxTipMultiplier, 0.0f), TimeElapsed);
+	TipAmount = MaxTipAmount * TipMultiplier;
+
+	if (TipMultiplier > MaxTipMultiplier * 0.6)
 	{
 		OrderSatisfaction = EOrderSatisfaction::Excellent;
 	}
-	else if (TipMultiplier > MaxTipMultiplier * 0.6)
+	else if (TipMultiplier > MaxTipMultiplier * 0.4)
 	{
 		OrderSatisfaction = EOrderSatisfaction::VeryGood;
 	}
-	else if (TipMultiplier > MaxTipMultiplier * 0.4)
+	else if (TipMultiplier > MaxTipMultiplier * 0.2)
 	{
 		OrderSatisfaction = EOrderSatisfaction::Good;
 	}
-	else if (TipMultiplier > MaxTipMultiplier * 0.2)
+	else if (TipMultiplier > 0.0f)
 	{
 		OrderSatisfaction = EOrderSatisfaction::Poor;
 	}
-	else if (TipMultiplier > 0.0f)
+	else  if (TipMultiplier == 0.0f)
 	{
 		OrderSatisfaction = EOrderSatisfaction::VeryPoor;
 	}

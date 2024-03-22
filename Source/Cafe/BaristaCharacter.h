@@ -10,6 +10,8 @@
 #include "Engine/DataTable.h"
 #include "BaristaCharacter.generated.h"
 
+enum class EOrderSatisfaction : uint8;
+
 UCLASS()
 class CAFE_API ABaristaCharacter : public ACafeCharacter
 {
@@ -76,6 +78,9 @@ public:
 private:
 	UFUNCTION()
 	void CustomerBeginOrder(class ACustomerCharacter* OrderingCustomer);
+
+	UFUNCTION()
+	void CustomerEndOrder(class ACustomerCharacter* OrderingCustomer, float TipAmount, EOrderSatisfaction OrderSatisfaction);
 	
 private:
 	UPROPERTY()

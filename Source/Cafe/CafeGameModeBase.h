@@ -21,11 +21,10 @@ enum ECustomerRarity : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerOrdered, class ACustomerCharacter*, Customer);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCustomerLeft, class ACustomerCharacter*, Customer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCustomerOrderConcluded, class ACustomerCharacter*, Customer, float, TipAmount, EOrderSatisfaction, OrderSatisfaction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpdateBalance, float, NewBalance);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBeginDay);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndDay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndDay, bool, DidMeetQuota);
 
 UCLASS()
 class CAFE_API ACafeGameModeBase : public AGameModeBase
@@ -89,6 +88,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetQuota() { return Quota; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetCustomersDisappointed() { return CustomersDisappointed; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetMaxCustomersDisappointed() { return MaxCustomersDisappointed; }
+
 	UFUNCTION()
 	void RemoveCustomer(class ACustomerCharacter* Customer);
 
@@ -98,6 +103,9 @@ private:
 
 	UFUNCTION()
 	void AddBalance(class ACustomerCharacter* Customer, float TipAmount, EOrderSatisfaction OrderSatisfaction);
+
+	UFUNCTION()
+	void LogCustomerSatisfaction(ACustomerCharacter* Customer, float TipAmount, EOrderSatisfaction OrderSatisfaction);
 
 public:
 	/* Default map of customer names with an associated customer rarity */
@@ -153,4 +161,7 @@ private:
 	
 	UPROPERTY()
 	float Quota = 0.0f;
+
+	int32 MaxCustomersDisappointed = 3;
+	int32 CustomersDisappointed = 0;
 };

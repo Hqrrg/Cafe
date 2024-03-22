@@ -50,7 +50,10 @@ void ABaristaCharacter::BeginPlay()
 	GameModeRef = Cast<ACafeGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameModeRef->SetBaristaRef(this);
 	GameModeRef->OnCustomerBeginOrder.AddDynamic(this, &ABaristaCharacter::CustomerBeginOrder);
+	GameModeRef->OnCustomerEndOrder.AddDynamic(this, &ABaristaCharacter::CustomerEndOrder);
 }
+
+AActor* SelectedActor = nullptr;
 
 void ABaristaCharacter::Tick(float DeltaSeconds)
 {
@@ -60,6 +63,58 @@ void ABaristaCharacter::Tick(float DeltaSeconds)
 	{
 		OutHit = new FHitResult();
 		LineTrace = LineTraceFromMousePosition(*OutHit);
+		
+		if (LineTrace)
+		{
+			if (AActor* HitActor = OutHit->GetActor())
+			{
+				/* If the line trace hit an actor that implements IInteractable */
+				if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
+				{
+					if (SelectedActor)
+					{
+						if (HitActor != SelectedActor)
+						{
+							IInteractable::Execute_Selected(HitActor, false);
+							SelectedActor = HitActor;
+						}
+						else
+						{
+							IInteractable::Execute_Selected(SelectedActor, true);
+						}
+					}
+					else
+					{
+						SelectedActor = HitActor;
+						IInteractable::Execute_Selected(SelectedActor, true);
+					}
+				}
+				else
+				{
+					if (SelectedActor)
+					{
+						IInteractable::Execute_Selected(SelectedActor, false);
+						SelectedActor = nullptr;
+					}
+				}
+			}
+			else
+			{
+				if (SelectedActor)
+				{
+					IInteractable::Execute_Selected(SelectedActor, false);
+					SelectedActor = nullptr;
+				}
+			}
+		}
+		else
+		{
+			if (SelectedActor)
+			{
+				IInteractable::Execute_Selected(SelectedActor, false);
+				SelectedActor = nullptr;
+			}
+		}
 	}
 }
 
@@ -281,20 +336,21 @@ void ABaristaCharacter::Interact(const FInputActionValue& Value)
 
 		if (AActor* HitActor = OutHit->GetActor())
 		{
-			if ((GetActorLocation() - HitActor->GetActorLocation()).Length() <= 100.0f)
+			/* If the line trace hit an actor that implements IInteractable */
+			if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
 			{
-				/* If the line trace hit an actor that implements IInteractable */
-				if (IInteractable* Interactable = Cast<IInteractable>(HitActor))
+				if (IInteractable::Execute_ShouldBeNextTo(HitActor))
 				{
-					/* Set InteractedPawn on the interactable actor */
-					IInteractable::Execute_SetInteractedPawn(HitActor, this);
-					
-					/* Execute interact function on the interactable actor */
-					IInteractable::Execute_Interact(HitActor);
-
-					/* If we were not worrying about BlueprintNativeEvent
-					 * the function call would look like this: Interactable->Interact(); */
+					if ((GetActorLocation() - HitActor->GetActorLocation()).Length() > 150.0f) return;
 				}
+				/* Set InteractedPawn on the interactable actor */
+				IInteractable::Execute_SetInteractedPawn(HitActor, this);
+			
+				/* Execute interact function on the interactable actor */
+				IInteractable::Execute_Interact(HitActor);
+
+				/* If we were not worrying about BlueprintNativeEvent
+				 * the function call would look like this: Interactable->Interact(); */
 			}
 		}
 	}
@@ -304,6 +360,14 @@ void ABaristaCharacter::CustomerBeginOrder(ACustomerCharacter* OrderingCustomer)
 {
 	CurrentCustomerRef = OrderingCustomer;
 	CurrentOrder = OrderingCustomer->GetOrder();
+}
+
+void ABaristaCharacter::CustomerEndOrder(ACustomerCharacter* OrderingCustomer, float TipAmount, EOrderSatisfaction OrderSatisfaction)
+{
+	CurrentOrder->ClearTicket();
+	
+	CurrentCustomerRef = nullptr;
+	CurrentOrder = nullptr;
 }
 
 /* Return true if line trace hits an actor and set by reference */

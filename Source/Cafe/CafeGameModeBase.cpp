@@ -43,6 +43,7 @@ void ACafeGameModeBase::BeginPlay()
 	}
 
 	OnCustomerEndOrder.AddDynamic(this, &ACafeGameModeBase::AddBalance);
+	OnCustomerEndOrder.AddDynamic(this, &ACafeGameModeBase::LogCustomerSatisfaction);
 }
 
 void ACafeGameModeBase::Tick(float DeltaSeconds)
@@ -95,6 +96,8 @@ void ACafeGameModeBase::BeginDay_Implementation(float LengthSeconds)
 
 void ACafeGameModeBase::EndDay_Implementation(bool DidMeetQuota)
 {
+	GetWorldTimerManager().ClearTimer(SpawnCustomerTimerHandle);
+	
 	UCafeGameInstance* GameInstanceRef = Cast<UCafeGameInstance>(GetGameInstance());
 	ABaristaCharacter* Barista = GetBaristaRef();
 
@@ -105,7 +108,7 @@ void ACafeGameModeBase::EndDay_Implementation(bool DidMeetQuota)
 	GameInstanceRef->SetBalance(GetBalance());
 	GameInstanceRef->SetProfitQuota(GetQuota());
 
-	OnEndDay.Broadcast();
+	OnEndDay.Broadcast(DidMeetQuota);
 }
 
 /* Spawn a customer character */
@@ -158,6 +161,19 @@ void ACafeGameModeBase::AddBalance(ACustomerCharacter* Customer, float TipAmount
 {
 	Balance += TipAmount;
 	OnUpdateBalance.Broadcast(Balance);
+}
+
+void ACafeGameModeBase::LogCustomerSatisfaction(ACustomerCharacter* Customer, float TipAmount, EOrderSatisfaction OrderSatisfaction)
+{
+	if (OrderSatisfaction == EOrderSatisfaction::VeryPoor)
+	{
+		CustomersDisappointed++;
+	}
+
+	if (GetCustomersDisappointed() >= GetMaxCustomersDisappointed())
+	{
+		EndDay(GetBalance() >= GetQuota());
+	}
 }
 
 void ACafeGameModeBase::RemoveCustomer(ACustomerCharacter* Customer)

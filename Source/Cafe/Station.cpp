@@ -15,6 +15,14 @@ AStation::AStation()
 {
 	/* Disable tick for this actor */
 	PrimaryActorTick.bCanEverTick = false;
+
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(SceneComponent);
+	
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetHiddenInGame(true);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 /* Called when pawn is possessed */
@@ -55,6 +63,9 @@ void AStation::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		/* Bind make input logic */
 		EnhancedInputComponent->BindAction(MakeAction, ETriggerEvent::Triggered, this, &AStation::Make);
 
+		/* Bind clear input logic */
+		EnhancedInputComponent->BindAction(ClearAction, ETriggerEvent::Triggered, this, &AStation::Clear);
+		
 		/* Bind exit input logic */
 		EnhancedInputComponent->BindAction(ExitAction, ETriggerEvent::Triggered, this, &AStation::Exit);
 	}
@@ -90,12 +101,21 @@ void AStation::Make(const FInputActionValue& Value)
 	}
 
 	/* We can then add MakeKey to an array */
-	InputArray.Add(MakeKey);
-
-	OnMakeInput.Broadcast(InputArray);
+	if (InputArray.Num() < 5)
+	{
+		InputArray.Add(MakeKey);
+	}
 
 	/* Clear input array if input matches ingredient pattern */
 	if (DoesInputMatchIngredient()) InputArray.Empty();
+
+	OnMakeInput.Broadcast(InputArray);
+}
+
+void AStation::Clear(const FInputActionValue& Value)
+{
+	InputArray.Empty();
+	OnMakeInput.Broadcast(InputArray);
 }
 
 /* Exit input logic */
@@ -107,6 +127,8 @@ void AStation::Exit(const FInputActionValue& Value)
 	/* Repossess InteractedPawn (Barista) */
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	PlayerController->Possess(BaristaRef);
+
+	OnExit();
 }
 
 /* Interact behaviour ~ _Impementation suffix because of BlueprintNativeEvent */
@@ -114,6 +136,8 @@ void AStation::Interact_Implementation()
 {
 	IInteractable::Interact_Implementation();
 
+	if (!BaristaRef->GetCurrentOrder()) return;
+	
 	/* Possess this pawn */
 	APlayerController* PlayerController = Cast<APlayerController>(BaristaRef->GetController());
 	PlayerController->Possess(this);
@@ -123,6 +147,9 @@ void AStation::Interact_Implementation()
 void AStation::Selected_Implementation(bool Is)
 {
 	IInteractable::Selected_Implementation(Is);
+
+	
+	WidgetComponent->SetHiddenInGame(!Is);
 }
 
 /* Setter for InteractedPawn ~ _Impementation suffix because of BlueprintNativeEvent */
@@ -133,6 +160,11 @@ void AStation::SetInteractedPawn_Implementation(APawn* Pawn)
 	BaristaRef = Cast<ABaristaCharacter>(Pawn);
 
 	IngredientArray.Add(EIngredient::CoffeeBeans);
+}
+
+bool AStation::ShouldBeNextTo_Implementation()
+{
+	return true;
 }
 
 bool AStation::DoesInputMatchIngredient()
@@ -181,6 +213,7 @@ bool AStation::DoesInputMatchIngredient()
 		{
 			BaristaRef->GetCurrentOrder()->AddIngredientToTicket(MatchedIngredientKey);
 			OnIngredientMade(MatchedIngredientKey);
+			OnMakeIngredient.Broadcast(MatchedIngredientKey);
 		}
 	}
 	return MatchedIngredient ? true : false;

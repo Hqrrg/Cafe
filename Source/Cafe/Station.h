@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "Interactable.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Station.generated.h"
 
@@ -12,13 +13,21 @@ enum class EIngredient : uint8;
 enum class EMakeKey: uint8;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMakeInput, TArray<EMakeKey>, Inputs);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMakeInput, UPARAM(ref) TArray<EMakeKey>, Inputs);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMakeIngredient, EIngredient, Ingredient);
 
 UCLASS()
 class CAFE_API AStation : public APawn, public IInteractable
 {
 	GENERATED_BODY()
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* SceneComponent = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance, meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* WidgetComponent = nullptr;
+	
 	/* Input Mapping Context */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* InputMappingContext;
@@ -26,6 +35,9 @@ class CAFE_API AStation : public APawn, public IInteractable
 	/* Make Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MakeAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ClearAction;
 
 	/* Exit Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -49,6 +61,10 @@ protected:
 	/* Make input logic */
 	void Make(const FInputActionValue& Value);
 
+
+	/* Clear input logic */
+	void Clear(const FInputActionValue& Value);
+	
 	/* Exit input logic */
 	void Exit(const FInputActionValue& Value);
 
@@ -62,14 +78,25 @@ public:
 	/* Setter for InteractedPawn ~ _Impementation suffix because of BlueprintNativeEvent */
 	virtual void SetInteractedPawn_Implementation(APawn* Pawn) override;
 
+	bool ShouldBeNextTo_Implementation() override;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnIngredientMade(EIngredient Ingredient);
 
 	UPROPERTY(BlueprintAssignable)
+	FMakeIngredient OnMakeIngredient;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnExit();
+
+	UPROPERTY(BlueprintAssignable)
 	FMakeInput OnMakeInput;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE class ABaristaCharacter* GetBaristaRef() { return BaristaRef; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE TArray<EIngredient> GetIngredientArray() { return IngredientArray; }
 
 protected:
 	bool DoesInputMatchIngredient();

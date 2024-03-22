@@ -87,7 +87,7 @@ private:
 	float Price = 0.0f;
 
 	UPROPERTY()
-	uint8 Quantity = 1;
+	int8 Quantity = 10;
 
 	UPROPERTY()
 	FName IngredientName;

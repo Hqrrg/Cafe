@@ -51,10 +51,39 @@ struct FCustomerModifierInfo : public FTableRowBase
 	ECustomerModifier SecondModifier = ECustomerModifier::Normal;
 };
 
+/* DataTable struct containing information about a customer's modifiers */
+USTRUCT(BlueprintType)
+struct FCustomerWidgets : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> HappyWidget = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> NeutralWidget = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> MadWidget = nullptr;
+};
+
 UCLASS()
 class CAFE_API ACustomerCharacter : public ACafeCharacter
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* WidgetComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> HappyWidget = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> NeutralWidget = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> MadWidget = nullptr;
+	
 
 public:
 	/* Sets default properties for this actor */
@@ -111,6 +140,10 @@ private:
 	
 	ECustomerModifier Modifier = ECustomerModifier::Normal;
 
+	EOrderSatisfaction OrderSatisfaction = EOrderSatisfaction::Good;
+	float TipMultiplier = 0.0f;
+	float TipAmount = 0.0f;
+
 	UPROPERTY()
 	UOrder* Order = nullptr;
 	
@@ -136,4 +169,9 @@ private:
 	UDataTable* CustomerModifierInfoDataTable = nullptr;
 
 	FCustomerModifierInfo* CustomerModifierInfo = nullptr;
+
+	UPROPERTY()
+	UDataTable* CustomerWidgetDataTable = nullptr;
+
+	FCustomerWidgets* CustomerWidgets = nullptr;
 };

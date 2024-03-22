@@ -7,7 +7,7 @@
 #include "Interactable.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UInteractable : public UInterface
 {
 	GENERATED_BODY()
@@ -35,4 +35,7 @@ public:
 	 * Not "Virtual" because of BlueprintNativeEvent */
 	UFUNCTION(BlueprintNativeEvent)
 	void SetInteractedPawn(class APawn* Pawn);
+
+	UFUNCTION(BlueprintNativeEvent)
+	bool ShouldBeNextTo();
 };

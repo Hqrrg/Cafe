@@ -22,6 +22,12 @@ EIngredientUseResult UIngredient::Use()
 		SetQuantity(GetQuantity() - 1);
 		return EIngredientUseResult::Success;
 	}
+
+	if (GetQuantity() == -1)
+	{
+		return EIngredientUseResult::Success;
+	}
+	
 	return EIngredientUseResult::NoStock;
 }
 

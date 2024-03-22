@@ -17,6 +17,8 @@ void ACoffeeStation::SetInteractedPawn_Implementation(APawn* Pawn) {
 
 	Super::SetInteractedPawn_Implementation(Pawn);
 
+	IngredientArray.Empty();
+	
 	IngredientArray.Add(EIngredient::Water);
 	IngredientArray.Add(EIngredient::CoffeeBeans);
 }

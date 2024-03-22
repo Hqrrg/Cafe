@@ -30,3 +30,8 @@ void ABin::SetInteractedPawn_Implementation(APawn* Pawn)
 	BaristaRef = Cast<ABaristaCharacter>(Pawn);
 }
 
+bool ABin::ShouldBeNextTo_Implementation()
+{
+	return true;
+}
+
